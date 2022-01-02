@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <windows.h>
-#include <stdlib.h>
 #include <conio.h>
 #include <time.h>
-#include <windows.h>
 
 char lines[100];
 char world[20][20];
@@ -25,22 +23,11 @@ int unc[2];
 int moved = 1;
 char moving_creature;
 char move_direction;
-void setTextColor(int textColor, int backColor) {
-    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-    int colorAttribute = backColor << 4 | textColor;
-    SetConsoleTextAttribute(consoleHandle, colorAttribute);
-
-}
-
-
 void sleep(unsigned int mseconds) {
     clock_t goal = mseconds + clock();
     while (goal > clock());
 }
 
-void clearScreen() {
-    system("clear");
-}
 
 void mapreader(FILE *readfile){
     fgets(lines , 100 , readfile);
@@ -375,7 +362,6 @@ int main(){
 
     readfile = fopen("C:\\creatures_to_heaven\\map-phase0.txt" , "rt" );
     if(!readfile || !log) printf("File did not open!");
-    setTextColor(11 , 0);
     mapreader(readfile);
     for(int i=0;i<size;i++){
         fprintf(log , "|");
@@ -386,12 +372,6 @@ int main(){
     }
     fprintf(log , "\n");
     mapprinter(world,size);
-    printf("MOVE with:\n");
-    printf("          q -- w -- e\n");
-    printf("          |    |    |\n");
-    printf("          a -- @ -- d\n");
-    printf("          |    |    |\n");
-    printf("          z -- x -- c\n");
 
     printf("\n");
     int ch;
