@@ -29,6 +29,13 @@ void sleep(unsigned int mseconds) {
 }
 
 
+void setTextColor(int textColor, int backColor) {
+    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    int colorAttribute = backColor << 4 | textColor;
+    SetConsoleTextAttribute(consoleHandle, colorAttribute);
+
+}
+
 void mapreader(FILE *readfile){
     fgets(lines , 100 , readfile);
     size = atof(&lines[0]);
@@ -371,7 +378,14 @@ int main(){
         fprintf(log , "\n");
     }
     fprintf(log , "\n");
+    setTextColor(9 , 0);
     mapprinter(world,size);
+    printf("MOVE with:\n");
+    printf("          q -- w -- e\n");
+    printf("          |         |\n");
+    printf("          a    *    d\n");
+    printf("          |         |\n");
+    printf("          z -- x -- c\n");
 
     printf("\n");
     int ch;
