@@ -377,7 +377,6 @@ int main(){
     if(!readfile || !log) printf("File did not open!");
     setTextColor(11 , 0);
     mapreader(readfile);
-    //log the map;
     for(int i=0;i<size;i++){
         fprintf(log , "|");
         for(int j=0;j<size;j++){
