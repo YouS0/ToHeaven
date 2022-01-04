@@ -23,9 +23,11 @@ int unc[2];
 int moved = 1;
 char moving_creature;
 char move_direction;
-<<<<<<< HEAD
-=======
 int controlanimal;
+char ch;
+int movements ;
+int move_switch;
+int unc_possible_move;
 void setTextColor(int textColor, int backColor) {
     HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     int colorAttribute = backColor << 4 | textColor;
@@ -34,7 +36,6 @@ void setTextColor(int textColor, int backColor) {
 }
 
 
->>>>>>> control1
 void sleep(unsigned int mseconds) {
     clock_t goal = mseconds + clock();
     while (goal > clock());
@@ -150,7 +151,7 @@ void mapprinter(char world[][20],int size){
         setTextColor(11,0);
         printf("|");
         for(int j=0;j<size;j++){
-            setTextColor(8,0);
+            setTextColor(13,0);
             printf("%c",world[i][j]);
             setTextColor(11,0);
             printf("|");
@@ -167,7 +168,7 @@ void swap(char world[][20],int a,int b,int i,int j){
     world[i][j]=temp;
 }
 
-void movewithkey( int n , int animaltype[150] , char direc , int* i){
+void movewithkey(int animaltype[150] , char direc , int* i){
     moved=1;
     if(direc=='a'){
         move_direction = 'a';
@@ -183,7 +184,6 @@ void movewithkey( int n , int animaltype[150] , char direc , int* i){
         }
         else{
             moved = 0;
-            printf("\aERROR:please enter another direction\n");
             *i-=2;
         }
     }
@@ -201,7 +201,6 @@ void movewithkey( int n , int animaltype[150] , char direc , int* i){
         }
         else{
             moved = 0;
-            printf("\aERROR:please enter another direction\n");
             *i-=2;
         }
     }
@@ -219,7 +218,6 @@ void movewithkey( int n , int animaltype[150] , char direc , int* i){
         }
         else{
             moved = 0;
-            printf("\aERROR:please enter another direction\n");
             *i-=2;
         }
     }
@@ -237,7 +235,6 @@ void movewithkey( int n , int animaltype[150] , char direc , int* i){
         }
         else{
             moved = 0;
-            printf("\aERROR:please enter another direction\n");
             *i-=2;
         }
     }
@@ -256,7 +253,6 @@ void movewithkey( int n , int animaltype[150] , char direc , int* i){
         }
         else{
             moved = 0;
-            printf("\aERROR:please enter another direction\n");
             *i-=2;
         }
     }
@@ -275,7 +271,6 @@ void movewithkey( int n , int animaltype[150] , char direc , int* i){
         }
         else{
             moved = 0;
-            printf("\aERROR:please enter another direction\n");
             *i-=2;
         }
     }
@@ -294,7 +289,6 @@ void movewithkey( int n , int animaltype[150] , char direc , int* i){
         }
         else{
             moved = 0;
-            printf("\aERROR:please enter another direction\n");
             *i-=2;
         }
     }
@@ -313,16 +307,13 @@ void movewithkey( int n , int animaltype[150] , char direc , int* i){
             }
             else{
                 moved = 0;
-                printf("\aERROR:please enter another direction\n");
                 *i-=2;
             }
     }
     else{
         moved = 0;
-        printf("\athis direction isn't available!!\n");
         *i-=2;
     }
-    *i += 2;
     mapprinter(world,size);
 }
 
@@ -653,55 +644,58 @@ void theNearest(int x , int y, char type) {
     
 }
 
-void moveunc(int x , int y , int number , int j){
+void moveunc(int j){
+    int x = noncanimals[j];
+    int y = noncanimals[j+1];
+    
     if(x>unc[0]){
         if(y>unc[1]){
-            if(world[x-1][y-1] == '-' || world[x-1][y-1] == 'H')movewithkey(number , noncanimals , 'q' , &j);
-            else if (world[x-1][y] == '-'|| world[x-1][y] == 'H') movewithkey(number , noncanimals , 'a' , &j);
-            else if ((world[x][y-1] == '-'|| world[x][y-1] == 'H')) movewithkey(number , noncanimals , 'x' , &j);
+            if(world[x-1][y-1] == '-' || world[x-1][y-1] == 'H')while(movements<unc_possible_move && sw == 0) movewithkey(noncanimals , 'q' , &j), movements++;
+            else if (world[x-1][y] == '-'|| world[x-1][y] == 'H') while(movements<unc_possible_move)movewithkey(noncanimals , 'a' , &j), movements++;
+            else if ((world[x][y-1] == '-'|| world[x][y-1] == 'H')) while(movements<unc_possible_move)movewithkey(noncanimals , 'x' , &j), movements++;
         }
         if(y<unc[1]){
-            if(world[x-1][y+1] == '-'|| world[x-1][y+1] == 'H')movewithkey(number , noncanimals , 'e' , &j);
-            else if(world[x][y+1] == '-'|| world[x][y+1] == 'H')movewithkey(number , noncanimals , 'd' , &j);
-            else if(world[x-1][y] == '-'|| world[x-1][y] == 'H')movewithkey(number , noncanimals , 'w' , &j);
+            if(world[x-1][y+1] == '-'|| world[x-1][y+1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'e' , &j), movements++;
+            else if(world[x][y+1] == '-'|| world[x][y+1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'd' , &j), movements++;
+            else if(world[x-1][y] == '-'|| world[x-1][y] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'w' , &j), movements++;
         }
         if(y==unc[1]){
-            if(world[x-1][y] == '-'|| world[x-1][y] == 'H')movewithkey(number , noncanimals , 'w' , &j);
-            else if(world[x-1][y+1]=='-'|| world[x-1][y+1] == 'H') movewithkey(number , noncanimals , 'e' , &j);
-            else if(world[x+1][y+1]=='-'|| world[x+1][y+1] == 'H') movewithkey(number , noncanimals , 'c' , &j);
+            if(world[x-1][y] == '-'|| world[x-1][y] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'w' , &j), movements++;
+            else if(world[x-1][y+1]=='-'|| world[x-1][y+1] == 'H') while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'e' , &j), movements++;
+            else if(world[x+1][y+1]=='-'|| world[x+1][y+1] == 'H') while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'c' , &j), movements++;
         }
     }
     if(x<unc[0]){
         if(y>unc[1]){
-            if(world[x+1][y-1] == '-'|| world[x+1][y-1] == 'H' )movewithkey(number , noncanimals , 'z' , &j);
-            else if(world[x+1][y] == '-'|| world[x+1][y] == 'H')movewithkey(number , noncanimals , 'x' , &j);
-            else if(world[x][y-1] == '-'|| world[x][y-1] == 'H')movewithkey(number , noncanimals , 'a' , &j);
-        
+            if(world[x+1][y-1] == '-'|| world[x+1][y-1] == 'H' )while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'z' , &j), movements++;
+            else if(world[x+1][y] == '-'|| world[x+1][y] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'x' , &j), movements++;
+            else if(world[x][y-1] == '-'|| world[x][y-1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'a' , &j), movements++;
         }
         if(y<unc[1]){
-            if(world[x+1][y+1] == '-'|| world[x+1][y+1] == 'H')movewithkey(number , noncanimals , 'c' , &j);
-            else if(world[x+1][y] == '-'|| world[x+1][y] == 'H')movewithkey(number , noncanimals , 'x' , &j);
-            else if(world[x][y+1] == '-'|| world[x+1][y+1] == 'H')movewithkey(number , noncanimals , 'd' , &j);
+            if(world[x+1][y+1] == '-'|| world[x+1][y+1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'c' , &j), movements++;
+            else if(world[x+1][y] == '-'|| world[x+1][y] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'x' , &j), movements++;
+            else if(world[x][y+1] == '-'|| world[x+1][y+1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'd' , &j), movements++;
         }
         if(y==unc[1]){
-            if(world[x+1][y] == '-'|| world[x+1][y] == 'H')movewithkey(number , noncanimals , 'x' , &j);
-            else if(world[x+1][y-1] == '-'|| world[x+1][y-1] == 'H')movewithkey(number , noncanimals , 'z' , &j);
-            else if(world[x+1][y+1] == '-'|| world[x+1][y+1] == 'H')movewithkey(number , noncanimals , 'c' , &j);
+            if(world[x+1][y] == '-'|| world[x+1][y] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'x' , &j), movements++;
+            else if(world[x+1][y-1] == '-'|| world[x+1][y-1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'z' , &j), movements++;
+            else if(world[x+1][y+1] == '-'|| world[x+1][y+1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'c' , &j), movements++;
         }
     }
     if(x==unc[0]){
         if(y>unc[1]){
-            if(world[x][y-1] == '-'|| world[x][y-1] == 'H')movewithkey(number , noncanimals , 'a' , &j);
-            else if(world[x-1][y-1] == '-'|| world[x-1][y+1] == 'H')movewithkey(number , noncanimals , 'q' , &j);
-            else if(world[x+1][y-1] == '-'|| world[x+1][y-1] == 'H')movewithkey(number , noncanimals , 'z' , &j);
-        
+            if(world[x][y-1] == '-'|| world[x][y-1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'a' , &j), movements++;
+            else if(world[x-1][y-1] == '-'|| world[x-1][y+1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'q' , &j), movements++;
+            else if(world[x+1][y-1] == '-'|| world[x+1][y-1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'z' , &j), movements++;
         }
         if(y<unc[1]){
-            if(world[x][y+1] == '-'|| world[x][y+1] == 'H')movewithkey(number , noncanimals , 'd' , &j);
-            else if(world[x-1][y+1]=='-'|| world[x-1][y+1] == 'H') movewithkey(number , noncanimals , 'e' , &j);
-            else if(world[x+1][y+1] == '-'|| world[x+1][y+1] == 'H')movewithkey(number , noncanimals , 'c' , &j);
+            if(world[x][y+1] == '-'|| world[x][y+1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'd' , &j), movements++;
+            else if(world[x-1][y+1]=='-'|| world[x-1][y+1] == 'H') while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'e' , &j) , movements++;
+            else if(world[x+1][y+1] == '-'|| world[x+1][y+1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'c' , &j) , movements++;
         }
     }
+    
+    
 }
 
 int main(){
@@ -727,14 +721,10 @@ int main(){
     printf("\n");
     int n=0;
     int number = 0;
-<<<<<<< HEAD
-    ch=fgetc(readfile);
-    printf("The Creature under your control : %c\n",ch);
   
-=======
     printf("The Creature under your control : %c\n",controlanimal);
 
->>>>>>> control1
+
 
     for(int i=0;i<size;i++){
         for(int j=0;j<size;j++){
@@ -781,20 +771,21 @@ int main(){
         }
         int j = 0;
         while(j<number && sw ==0){
+            movements = 0;
             theNearest(noncanimals[j] , noncanimals[j+1] , 'H');
             int x = noncanimals[j];
             int y = noncanimals[j+1];
             animal = world[x][y];
+            unc_possible_move = list[search(list,animal)].numberm;
             printf("moving creature %c in position(%d,%d) to (%d,%d) : \n" , world[x][y] ,x , y , unc[0] , unc[1]);
-            moveunc(x , y , number , j);
+            moveunc(j);
             fprintf(log , "moving creature %c in (%d,%d) into %c direction\n" , animal ,x , y , move_direction );
-            if(sw==1) {
+            sleep(1000);
+            j += 2;
+            if(sw==1){
                 printf("gg , wp all -> creature %c won!!!",winner);
                 fprintf( log, "gg , wp all -> creature %c won!!!",winner);
             }
-            j += 2;
-            sleep(1000);
-            
 
         }
     
@@ -805,7 +796,8 @@ int main(){
     
     
     }
-
+    printf("\nPress Any Key To Exit");
+    getch();
 
 
     
