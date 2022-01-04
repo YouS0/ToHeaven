@@ -25,6 +25,7 @@ int unc[2];
 int moved = 1;
 char moving_creature;
 char move_direction;
+int controlanimal;
 void setTextColor(int textColor, int backColor) {
     HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     int colorAttribute = backColor << 4 | textColor;
@@ -40,6 +41,23 @@ void sleep(unsigned int mseconds) {
 
 void clearScreen() {
     system("clear");
+}
+
+struct sanimal{
+    char gender;
+    int primarye;  //primary energy
+    int movemente; //movement energy 
+    int numberm; //number of movement
+    int productione;  
+    int attacke;   
+    int defense;
+}list[10]; //it is supposed that number of maximum creatures is 10
+
+int search(struct sanimal a[],int ch){
+
+    for(int i=0;i<10;i++){
+        if(a[i].gender==ch) return i;
+    }
 }
 
 void mapreader(FILE *readfile){
@@ -107,6 +125,23 @@ void mapreader(FILE *readfile){
         }
         fgets(lines , 100 ,readfile);
     }
+    controlanimal=fgetc(readfile);
+    fgetc(readfile);
+    fscanf(readfile,"%s",endofline);
+
+    int i=0;
+    while(!feof(readfile)){
+
+        fscanf(readfile," %c",&list[i].gender);
+        fscanf(readfile,"%d",&list[i].primarye);
+        fscanf(readfile,"%d$",&list[i].movemente);
+        fscanf(readfile,"%d$",&list[i].numberm);
+        fscanf(readfile,"%d$",&list[i].productione);
+        fscanf(readfile,"%d$",&list[i].attacke);
+        fscanf(readfile,"%d",&list[i].defense);
+
+        i++;
+    }   
 
 }
 
@@ -114,10 +149,13 @@ void mapreader(FILE *readfile){
 void mapprinter(char world[][20],int size){
     printf("\n");
     for(int i=0;i<size;i++){
+        setTextColor(11,0);
         printf("|");
         for(int j=0;j<size;j++){
-
-            printf("%c|",world[i][j]);
+            setTextColor(8,0);
+            printf("%c",world[i][j]);
+            setTextColor(11,0);
+            printf("|");
         }
         printf("\n");
     }
@@ -131,11 +169,8 @@ void swap(char world[][20],int a,int b,int i,int j){
     world[i][j]=temp;
 }
 
-
-
-
 void movewithkey( int n , int animaltype[150] , char direc , int* i){
-    moved = 1;
+    moved=1;
     if(direc=='a'){
         move_direction = 'a';
         if(world[animaltype[*i]][animaltype[*i+1]-1]=='-'){
@@ -173,7 +208,7 @@ void movewithkey( int n , int animaltype[150] , char direc , int* i){
         }
     }
     else if(direc=='d'){
-        move_direction = 'd';
+        move_direction='d';
         if(world[animaltype[*i]][animaltype[*i+1]+1]=='-'){
             swap(world,animaltype[*i],animaltype[*i+1]+1,animaltype[*i],animaltype[*i+1]);
             animaltype[*i+1]+=1;
@@ -191,7 +226,7 @@ void movewithkey( int n , int animaltype[150] , char direc , int* i){
         }
     }
     else if(direc=='x'){
-        move_direction = 'x';
+        move_direction='x';
         if(world[animaltype[*i]+1][animaltype[*i+1]]=='-'){
             swap(world,animaltype[*i]+1,animaltype[*i+1],animaltype[*i],animaltype[*i+1]);
             animaltype[*i]+=1;
@@ -209,7 +244,7 @@ void movewithkey( int n , int animaltype[150] , char direc , int* i){
         }
     }
     else if(direc=='q'){
-        move_direction = 'q';
+        move_direction='q';
         if(world[animaltype[*i]-1][animaltype[*i+1]-1]=='-'){
             swap(world,animaltype[*i]-1,animaltype[*i+1]-1,animaltype[*i],animaltype[*i+1]);
             animaltype[*i]-=1;
@@ -228,7 +263,7 @@ void movewithkey( int n , int animaltype[150] , char direc , int* i){
         }
     }
     else if(direc=='e'){
-        move_direction = 'e';
+        move_direction='e';
         if(world[animaltype[*i]-1][animaltype[*i+1]+1]=='-'){
             swap(world,animaltype[*i]-1,animaltype[*i+1]+1,animaltype[*i],animaltype[*i+1]);
             animaltype[*i]-=1;
@@ -247,7 +282,7 @@ void movewithkey( int n , int animaltype[150] , char direc , int* i){
         }
     }
     else if(direc=='c'){
-        move_direction = 'c';
+        move_direction='c';
         if(world[animaltype[*i]+1][animaltype[*i+1]+1]=='-'){
             swap(world,animaltype[*i]+1,animaltype[*i+1]+1,animaltype[*i],animaltype[*i+1]);
             animaltype[*i]+=1;
@@ -266,8 +301,8 @@ void movewithkey( int n , int animaltype[150] , char direc , int* i){
         }
     }
     else if(direc=='z'){
-        move_direction = 'z';
-            if(world[animaltype[*i]+1][animaltype[*i+1]-1]=='-'){
+        move_direction='z';
+        if(world[animaltype[*i]+1][animaltype[*i+1]-1]=='-'){
                 swap(world,animaltype[*i]+1,animaltype[*i+1]-1,animaltype[*i],animaltype[*i+1]);
                 animaltype[*i]+=1;
                 animaltype[*i+1]-=1;
@@ -283,6 +318,311 @@ void movewithkey( int n , int animaltype[150] , char direc , int* i){
                 printf("\aERROR:please enter another direction\n");
                 *i-=2;
             }
+    }
+    else{
+        moved = 0;
+        printf("\athis direction isn't available!!\n");
+        *i-=2;
+    }
+    *i += 2;
+    mapprinter(world,size);
+}
+
+
+void movewithkey2( int n , int animaltype[150] , char direc , int* i){
+    moved = 1;
+    if(direc=='a'){
+        move_direction = 'a';
+        int j=1;
+        while(j<=n){
+            if(world[animaltype[*i]][animaltype[*i+1]-j]=='-' ||world[animaltype[*i]][animaltype[*i+1]-j]=='H'){
+                j++;
+            }
+            else{
+                break;
+            }
+        }
+        j--;
+        if(j==0){
+            moved = 0;
+            printf("\aERROR:please enter another direction\n");
+            *i-=2;
+        }
+        else{
+            printf("you can have only ((%d)) movementes through this direction \n",j);
+            do{
+                printf("Please enter the number of movements you want:(1 to %d)\n",j);
+                scanf("%d",&n);
+            }while (n>j);
+
+            if(world[animaltype[*i]][animaltype[*i+1]-n]=='-'){
+               swap(world,animaltype[*i],animaltype[*i+1],animaltype[*i],animaltype[*i+1]-n);
+               animaltype[*i+1]-=n; 
+            }
+
+            else{
+                winner = animal;
+                sw=1;
+                world[animaltype[*i]][animaltype[*i+1]]='-';
+            }
+        }
+    }
+    else if(direc=='w'){
+        move_direction = 'w';
+        int j=1;
+        while(j<=n){
+            if(world[animaltype[*i]-j][animaltype[*i+1]]=='-' ||world[animaltype[*i]-j][animaltype[*i+1]]=='H'){
+                j++;
+            }
+            else{
+                break;
+            }
+        }
+        j--;
+        if(j==0){
+            moved = 0;
+            printf("\aERROR:please enter another direction\n");
+            *i-=2;
+        }
+        else{
+            printf("you can have only ((%d)) movementes through this direction \n",j);
+            do{
+                printf("Please enter the number of movements you want:(1 to %d)\n",j);
+                scanf("%d",&n);
+            }while (n>j);
+
+            if(world[animaltype[*i]-n][animaltype[*i+1]]=='-'){
+               swap(world,animaltype[*i],animaltype[*i+1],animaltype[*i]-n,animaltype[*i+1]);
+               animaltype[*i]-=n; 
+            }
+
+            else{
+                winner = animal;
+                sw=1;
+                world[animaltype[*i]][animaltype[*i+1]]='-';
+            }
+        }
+
+    }
+    else if(direc=='d'){
+        move_direction = 'd';
+        int j=1;
+        while(j<=n){
+            if(world[animaltype[*i]][animaltype[*i+1]+j]=='-' || world[animaltype[*i]][animaltype[*i+1]+j]=='H'){
+                j++;
+            }
+            else{
+                break;
+            }
+        }
+        j--;
+
+        if(j==0){
+            moved = 0;
+            printf("\aERROR:please enter another direction\n");
+            *i-=2; 
+        }
+        else{
+            printf("you can have only ((%d)) movementes through this direction \n",j);
+            do{
+                printf("Please enter the number of movements you want:(1 to %d)\n",j);
+                scanf("%d",&n);
+            }while (n>j);
+
+            if(world[animaltype[*i]][animaltype[*i+1]+n]=='-'){
+               swap(world,animaltype[*i],animaltype[*i+1]+n,animaltype[*i],animaltype[*i+1]);
+               animaltype[*i+1]+=n; 
+            } 
+            else{
+               winner = animal;
+               sw=1;
+               world[animaltype[*i]][animaltype[*i+1]]='-'; 
+            }
+        }
+    }
+    else if(direc=='x'){
+        move_direction = 'x';
+        int j=1;
+        while(j<=n){
+            if(world[animaltype[*i]+j][animaltype[*i+1]]=='-' || world[animaltype[*i]+j][animaltype[*i+1]]=='H'){
+                j++;
+            }
+            else{
+                break;
+            }
+        }
+        j--;
+
+        if(j==0){
+            moved = 0;
+            printf("\aERROR:please enter another direction\n");
+            *i-=2;
+        }
+        else{
+            printf("you can have only ((%d)) movementes through this direction \n",j);
+            do{
+                printf("Please enter the number of movements you want:(1 to %d)\n",j);
+                scanf("%d",&n);
+            }while (n>j);
+
+            if(world[animaltype[*i]+n][animaltype[*i+1]]=='-'){
+                swap(world,animaltype[*i]+n,animaltype[*i+1],animaltype[*i],animaltype[*i+1]);
+                animaltype[*i]+=n;  
+            }
+            else{
+                winner = animal;
+                sw=1;
+                world[animaltype[*i]][animaltype[*i+1]]='-';
+            }
+        }
+    }
+    else if(direc=='q'){
+        move_direction = 'q';
+        int j=1;
+        while(j<=n){
+            if(world[animaltype[*i]-j][animaltype[*i+1]-j]=='-' || world[animaltype[*i]-j][animaltype[*i+1]-j]=='H'){
+                j++;
+            }
+            else{
+                break;
+            }
+        }
+        j--;
+
+        if(j==0){
+            moved = 0;
+            printf("\aERROR:please enter another direction\n");
+            *i-=2;
+        }
+        else{
+            printf("you can have only ((%d)) movementes through this direction \n",j);
+            do{
+                printf("Please enter the number of movements you want:(1 to %d)\n",j);
+                scanf("%d",&n);
+            }while (n>j);
+
+            if(world[animaltype[*i]-j][animaltype[*i+1]-j]=='-' ){
+                swap(world,animaltype[*i]-n,animaltype[*i+1]-n,animaltype[*i],animaltype[*i+1]);
+                animaltype[*i]-=n;
+                animaltype[*i+1]-=n;  
+            }
+            else{
+               winner = animal;
+               sw=1;
+               world[animaltype[*i]][animaltype[*i+1]]='-'; 
+            }
+        }
+    }
+    else if(direc=='e'){
+        move_direction = 'e';
+        int j=1;
+        while(j<=n){
+            if(world[animaltype[*i]-j][animaltype[*i+1]+j]=='-' || world[animaltype[*i]-j][animaltype[*i+1]+j]=='H'){
+                j++;
+            }
+            else{
+                break;
+            }
+        }
+        j--;
+
+        if(j==0){
+            moved = 0;
+            printf("\aERROR:please enter another direction\n");
+            *i-=2;
+        }
+        else{
+           printf("you can have only ((%d)) movementes through this direction \n",j);
+           do{
+                printf("Please enter the number of movements you want:(1 to %d)\n",j);
+                scanf("%d",&n);
+            }while (n>j);
+
+           if(world[animaltype[*i]-n][animaltype[*i+1]+n]=='-'){
+               swap(world,animaltype[*i]-n,animaltype[*i+1]+n,animaltype[*i],animaltype[*i+1]);
+               animaltype[*i]-=n;
+               animaltype[*i+1]+=n;
+           } 
+           else{
+              winner = animal;
+              sw=1;
+              world[animaltype[*i]][animaltype[*i+1]]='-'; 
+           }
+        }
+    }
+    else if(direc=='c'){
+        move_direction = 'c';
+        int j=1;
+        while(j<=n){
+            if(world[animaltype[*i]+j][animaltype[*i+1]+j]=='-' || world[animaltype[*i]+j][animaltype[*i+1]+j]=='H'){
+                j++;
+            }
+            else{
+                break;
+            }
+        }
+        j--;
+        
+        if(j==0){
+            moved = 0;
+            printf("\aERROR:please enter another direction\n");
+            *i-=2;
+        }
+        else{
+            printf("you can have only ((%d)) movementes through this direction \n",j);
+            do{
+                printf("Please enter the number of movements you want:(1 to %d)\n",j);
+                scanf("%d",&n);
+            }while (n>j);
+
+            if(world[animaltype[*i]+n][animaltype[*i+1]+n]=='-'){
+                swap(world,animaltype[*i]+n,animaltype[*i+1]+n,animaltype[*i],animaltype[*i+1]);
+                animaltype[*i]+=n;
+                animaltype[*i+1]+=n;
+            }
+            else{
+               winner = animal;
+               sw=1;
+               world[animaltype[*i]][animaltype[*i+1]]='-'; 
+            }
+        }
+    }
+    else if(direc=='z'){
+        move_direction = 'z';
+        int j=1;
+        while(j<=n){
+            if(world[animaltype[*i]+j][animaltype[*i+1]-j]=='-' || world[animaltype[*i]+j][animaltype[*i+1]-j]=='H'){
+                j++;
+            }
+            else{
+                break;
+            }
+        }
+        j--;
+
+        if(j==0){
+            moved = 0;
+            printf("\aERROR:please enter another direction\n");
+            *i-=2;
+        }
+        else{
+            printf("you can have only ((%d)) movementes through this direction \n",j);
+            do{
+                printf("Please enter the number of movements you want:(1 to %d)\n",j);
+                scanf("%d",&n);
+            }while (n>j);
+
+            if(world[animaltype[*i]+n][animaltype[*i+1]-n]=='-'){
+               swap(world,animaltype[*i]+1,animaltype[*i+1]-1,animaltype[*i],animaltype[*i+1]);
+               animaltype[*i]+=1;
+               animaltype[*i+1]-=1; 
+            }
+            else{
+               winner = animal;
+               sw=1;
+               world[animaltype[*i]][animaltype[*i+1]]='-'; 
+            }
+        }
         }
     else{
         moved = 0;
@@ -373,7 +713,7 @@ int main(){
     FILE *readfile;
     int c[2];
 
-    readfile = fopen("C:\\creatures_to_heaven\\map-phase0.txt" , "rt" );
+    readfile = fopen("map-phase1.txt" , "rt" );
     if(!readfile || !log) printf("File did not open!");
     setTextColor(11 , 0);
     mapreader(readfile);
@@ -395,17 +735,15 @@ int main(){
     printf("          z -- x -- c\n");
 
     printf("\n");
-    int ch;
     int n=0;
     int number = 0;
-    ch=fgetc(readfile);
-    printf("The Creature under your control : %c\n",ch);
+    printf("The Creature under your control : %c\n",controlanimal);
 
 
     for(int i=0;i<size;i++){
         for(int j=0;j<size;j++){
 
-            if(world[i][j]==ch){
+            if(world[i][j]==controlanimal){
                 panimal[n]=i;
                 panimal[n+1]=j;
                 n +=2;
@@ -415,7 +753,7 @@ int main(){
     for(int i=0;i<size;i++){
         for(int j=0;j<size;j++){
 
-            if(world[i][j] != ch && world[i][j] != 'H' && world[i][j] != '#' && world[i][j] != '-'){
+            if(world[i][j] != controlanimal && world[i][j] != 'H' && world[i][j] != '#' && world[i][j] != '-'){
                 noncanimals[number]=i;
                 noncanimals[number+1]=j;
                 number+=2;
@@ -423,19 +761,20 @@ int main(){
         }
     }
 
-    
+    int z=search(list,controlanimal); //getting place of controlled creature in array "list".
+
     while(sw==0){
         int i = 0;
         while(i<n && sw ==0){
-            animal = ch;
+            animal = controlanimal;
             
             printf("you are at position:(%d,%d)\n",panimal[i],panimal[i+1]);
             int x1 = panimal[i];
             int y1 = panimal[i+1];
             moving_creature = world[x1][y1];
-            printf("please enter your direction of movement:\n");
+            printf("please enter direction of your movement:\n");
             scanf(" %c" , &direc);
-            movewithkey( n , panimal , direc , &i );
+            movewithkey2( list[z].numberm , panimal , direc , &i );
             if(moved == 1){
                 fprintf(log , "moving creature %c in (%d,%d) into %c direction\n" , moving_creature, x1 , y1 , move_direction );
             }
