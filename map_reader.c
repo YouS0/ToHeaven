@@ -145,13 +145,15 @@ void mapreader(FILE *readfile){
 }
 
 
-void mapprinter(char world[][20],int size){
+void mapprinter(char world[][20],int size,int k,int z){
     printf("\n");
     for(int i=0;i<size;i++){
         setTextColor(11,0);
         printf("|");
         for(int j=0;j<size;j++){
-            setTextColor(13,0);
+            if(i==k && j==z){
+                setTextColor(14,0);
+            }
             printf("%c",world[i][j]);
             setTextColor(11,0);
             printf("|");
@@ -314,7 +316,7 @@ void movewithkey(int animaltype[150] , char direc , int* i){
         moved = 0;
         *i-=2;
     }
-    mapprinter(world,size);
+   // mapprinter(world,size,animaltype[*i],animaltype[*i+1]);
 }
 
 
@@ -334,7 +336,9 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
         j--;
         if(j==0){
             moved = 0;
+            setTextColor(4,0);
             printf("\aERROR:please enter another direction\n");
+            setTextColor(11,0);
             *i-=2;
         }
         else{
@@ -370,7 +374,9 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
         j--;
         if(j==0){
             moved = 0;
+            setTextColor(4,0);
             printf("\aERROR:please enter another direction\n");
+            setTextColor(11,0);
             *i-=2;
         }
         else{
@@ -408,7 +414,9 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
 
         if(j==0){
             moved = 0;
+            setTextColor(4,0);
             printf("\aERROR:please enter another direction\n");
+            setTextColor(11,0);
             *i-=2; 
         }
         else{
@@ -444,7 +452,9 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
 
         if(j==0){
             moved = 0;
+            setTextColor(4,0);
             printf("\aERROR:please enter another direction\n");
+            setTextColor(11,0);
             *i-=2;
         }
         else{
@@ -480,7 +490,9 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
 
         if(j==0){
             moved = 0;
+            setTextColor(4,0);
             printf("\aERROR:please enter another direction\n");
+            setTextColor(11,0);
             *i-=2;
         }
         else{
@@ -517,7 +529,9 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
 
         if(j==0){
             moved = 0;
+            setTextColor(4,0);
             printf("\aERROR:please enter another direction\n");
+            setTextColor(11,0);
             *i-=2;
         }
         else{
@@ -554,7 +568,9 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
         
         if(j==0){
             moved = 0;
+            setTextColor(4,0);
             printf("\aERROR:please enter another direction\n");
+            setTextColor(11,0);
             *i-=2;
         }
         else{
@@ -591,7 +607,9 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
 
         if(j==0){
             moved = 0;
+            setTextColor(4,0);
             printf("\aERROR:please enter another direction\n");
+            setTextColor(11,0);
             *i-=2;
         }
         else{
@@ -615,11 +633,13 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
         }
     else{
         moved = 0;
+        setTextColor(4,0);
         printf("\athis direction isn't available!!\n");
+        setTextColor(11,0);
         *i-=2;
     }
     *i += 2;
-    mapprinter(world,size);
+   // mapprinter(world,size,animaltype[*i],animaltype[*i+1]);
 }
 
 
@@ -716,12 +736,13 @@ int main(){
         fprintf(log , "\n");
     }
     fprintf(log , "\n");
-    mapprinter(world,size);
+    /*mapprinter2(world,size);
 
-    printf("\n");
+    printf("\n");*/
+    setTextColor(11,0);
     int n=0;
     int number = 0;
-  
+    printf("\n");
     printf("The Creature under your control : %c\n",controlanimal);
 
 
@@ -753,10 +774,11 @@ int main(){
         int i = 0;
         while(i<n && sw ==0){
             animal = controlanimal;
-            
+
             printf("you are at position:(%d,%d)\n",panimal[i],panimal[i+1]);
             int x1 = panimal[i];
             int y1 = panimal[i+1];
+            mapprinter(world,size,x1,y1);
             moving_creature = world[x1][y1];
             printf("please enter direction of your movement:\n");
             scanf(" %c" , &direc);
@@ -778,6 +800,7 @@ int main(){
             animal = world[x][y];
             unc_possible_move = list[search(list,animal)].numberm;
             printf("moving creature %c in position(%d,%d) to (%d,%d) : \n" , world[x][y] ,x , y , unc[0] , unc[1]);
+            mapprinter(world,size,x,y);
             moveunc(j);
             fprintf(log , "moving creature %c in (%d,%d) into %c direction\n" , animal ,x , y , move_direction );
             sleep(1000);
