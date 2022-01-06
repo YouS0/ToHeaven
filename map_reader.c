@@ -744,6 +744,12 @@ int main(){
     int number = 0;
     printf("\n");
     printf("The Creature under your control : %c\n",controlanimal);
+    printf("MOVE with:\n");
+    printf("          q -- w -- e\n");
+    printf("          |    |    |\n");
+    printf("          a -- @ -- d\n");
+    printf("          |    |    |\n");
+    printf("          z -- x -- c\n");
 
 
 
@@ -783,6 +789,7 @@ int main(){
             printf("please enter direction of your movement:\n");
             scanf(" %c" , &direc);
             movewithkey2( list[z].numberm , panimal , direc , &i );
+            system("cls");
             if(moved == 1){
                 fprintf(log , "moving creature %c in (%d,%d) into %c direction\n" , moving_creature, x1 , y1 , move_direction );
             }
@@ -803,7 +810,8 @@ int main(){
             mapprinter(world,size,x,y);
             moveunc(j);
             fprintf(log , "moving creature %c in (%d,%d) into %c direction\n" , animal ,x , y , move_direction );
-            sleep(1000);
+            sleep(2000);
+            system("cls");
             j += 2;
             if(sw==1){
                 printf("gg , wp all -> creature %c won!!!",winner);
