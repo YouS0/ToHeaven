@@ -15,6 +15,10 @@ int deadends;
 int position;
 int panimal[150];
 int noncanimals[150];
+int Food_Position[100];
+int Food_energy[100];
+int NumberFood=0;
+int SwforAnimal[100]={0};
 char winner;
 int sw = 0;
 char direc;
@@ -24,7 +28,6 @@ int moved = 1;
 char moving_creature;
 char move_direction;
 int controlanimal;
-char ch;
 int movements ;
 int move_switch;
 int unc_possible_move;
@@ -43,21 +46,30 @@ void sleep(unsigned int mseconds) {
   
 
 struct sanimal{
+    int n;    //number of animal
     char gender;
-    int primarye;  //primary energy
-    int movemente; //movement energy 
-    int numberm; //number of movement
+    int energy[20];  //it is supposed that number of maximum animals is 20
+    int movemente;  //movement energy 
+    int numberm;   //number of movement
     int productione;  
     int attacke;   
     int defense;
+
 }list[10]; //it is supposed that number of maximum creatures is 10
+
+int SearchFood(int i,int j){
+    for(int k=0;k<NumberFood*2;k+=2){
+        if(Food_Position[k]==i && Food_Position[k+1]==j) return k;
+    }
+    return -1;
+}
 
 int search(struct sanimal a[],int ch){
 
     for(int i=0;i<10;i++){
         if(a[i].gender==ch) return i;
     }
-}
+}//search for place of creatures in array "list"
 
 void mapreader(FILE *readfile){
     fgets(lines , 100 , readfile);
@@ -101,15 +113,37 @@ void mapreader(FILE *readfile){
         j++;
     }
     //apply heaven cordinators to final world
-    char endofline[]="===\n";
-    int k = 0;
-    while (k!=2){
+    
+    /*while (k!=2){
         fgets(lines , 100 ,readfile);
         if(strcmp(lines , endofline)==0)k++;
+    }*/
+    char endofline[]="===\n";
+    int k = 0;
+    int i=0;
+    char ch;
+    fscanf(readfile,"%s\n",&endofline);
+    fscanf(readfile,"%c",&ch);
+    while (ch=='F')
+    {
+    fscanf(readfile,"%d ",&Food_energy[k]);
+    fscanf(readfile,"%c",&ch);
+    fscanf(readfile,"%d",&Food_Position[i]);
+    fscanf(readfile,"%c",&ch);
+    fscanf(readfile,"%d",&Food_Position[i+1]);
+    fscanf(readfile,"%c\n",&ch);
+    fscanf(readfile,"%c",&ch);
+    k++,i+=2,NumberFood++;
     }
+    fscanf(readfile,"%c%c\n",&ch,&ch);
+
+    strcpy(endofline,"===\n");
     fgets(lines , 100 ,readfile);
+    k=0;
     while(strcmp(lines,endofline)!=0){
         numberOfCreatures = atof(&lines[2]);
+        (list[k].n)=numberOfCreatures;
+        k++;
         position = 0;
         for(int i = 5 ; i<strlen(lines);i++){
             if(lines[i]>='0' && lines[i]<='9') {
@@ -128,11 +162,14 @@ void mapreader(FILE *readfile){
     fgetc(readfile);
     fscanf(readfile,"%s",endofline);
 
-    int i=0;
+    i=0;
     while(!feof(readfile)){
 
         fscanf(readfile," %c",&list[i].gender);
-        fscanf(readfile,"%d",&list[i].primarye);
+        fscanf(readfile,"%d",&list[i].energy[0]);
+        for(int j=1;j<(list[i].n);j++){
+            (list[i].energy[j])=(list[i].energy[0]);
+        }
         fscanf(readfile,"%d$",&list[i].movemente);
         fscanf(readfile,"%d$",&list[i].numberm);
         fscanf(readfile,"%d$",&list[i].productione);
@@ -316,11 +353,12 @@ void movewithkey(int animaltype[150] , char direc , int* i){
         moved = 0;
         *i-=2;
     }
-   // mapprinter(world,size,animaltype[*i],animaltype[*i+1]);
 }
 
 
-void movewithkey2( int n , int animaltype[150] , char direc , int* i){
+void movewithkey2( int place , int animaltype[150] , char direc , int* i){
+    int n=list[place].numberm;
+    int Energy=list[place].movemente;
     moved = 1;
     if(direc=='a'){
         move_direction = 'a';
@@ -342,12 +380,22 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
             *i-=2;
         }
         else{
-            printf("you can have only ((%d)) movementes through this direction \n",j);
+            printf("you can have only ((%d)) movementes along this direction \n",j);
             do{
                 printf("Please enter the number of movements you want:(1 to %d)\n",j);
                 scanf("%d",&n);
-            }while (n>j);
+                if(n*Energy > list[place].energy[(*i)/2]){
+                    setTextColor(4,0);
+                    printf("your energy isn't enough for this movement!!!\n");
+                    printf("please decrease number of your movement\n");
+                    setTextColor(11,0);
+                }
+            }while (n>j || n*Energy > list[place].energy[(*i)/2]);
 
+            int EFood=SearchFood(animaltype[*i],animaltype[*i+1]-n);
+            if(EFood!=-1){
+                list[place].energy[*i/2]+=Food_energy[EFood];
+            }
             if(world[animaltype[*i]][animaltype[*i+1]-n]=='-'){
                swap(world,animaltype[*i],animaltype[*i+1],animaltype[*i],animaltype[*i+1]-n);
                animaltype[*i+1]-=n; 
@@ -358,6 +406,15 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
                 sw=1;
                 world[animaltype[*i]][animaltype[*i+1]]='-';
             }
+           list[place].energy[(*i)/2]-=n*Energy;
+           if(list[place].energy[(*i)/2]<Energy){
+               SwforAnimal[(*i)/2]=1;
+               Food_energy[NumberFood]=list[place].energy[(*i)/2];
+               Food_Position[NumberFood*2]=animaltype[*i];
+               Food_Position[NumberFood*2 +1]=animaltype[*i+1];
+               world[animaltype[*i]][animaltype[*i+1]]='-';
+               NumberFood++;
+           } 
         }
     }
     else if(direc=='w'){
@@ -380,12 +437,22 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
             *i-=2;
         }
         else{
-            printf("you can have only ((%d)) movementes through this direction \n",j);
+            printf("you can have only ((%d)) movementes along this direction \n",j);
             do{
                 printf("Please enter the number of movements you want:(1 to %d)\n",j);
                 scanf("%d",&n);
-            }while (n>j);
+                if(n*Energy > list[place].energy[(*i)/2]){
+                    setTextColor(4,0);
+                    printf("your energy isn't enough for this movement!!!\n");
+                    printf("please decrease number of your movement\n");
+                    setTextColor(11,0);
+                }
+            }while (n>j || n*Energy > list[place].energy[(*i)/2]);
 
+            int EFood=SearchFood(animaltype[*i]-n,animaltype[*i+1]);
+            if(EFood!=-1){
+                list[place].energy[*i/2]+=Food_energy[EFood];
+            }
             if(world[animaltype[*i]-n][animaltype[*i+1]]=='-'){
                swap(world,animaltype[*i],animaltype[*i+1],animaltype[*i]-n,animaltype[*i+1]);
                animaltype[*i]-=n; 
@@ -396,6 +463,15 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
                 sw=1;
                 world[animaltype[*i]][animaltype[*i+1]]='-';
             }
+            list[place].energy[(*i)/2]-=n*Energy;
+            if(list[place].energy[(*i)/2]<Energy){
+               SwforAnimal[(*i)/2]=1;
+               Food_energy[NumberFood]=list[place].energy[(*i)/2];
+               Food_Position[NumberFood*2]=animaltype[*i];
+               Food_Position[NumberFood*2 +1]=animaltype[*i+1];
+               world[animaltype[*i]][animaltype[*i+1]]='-';
+               NumberFood++;
+           } 
         }
 
     }
@@ -420,12 +496,22 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
             *i-=2; 
         }
         else{
-            printf("you can have only ((%d)) movementes through this direction \n",j);
+            printf("you can have only ((%d)) movementes along this direction \n",j);
             do{
                 printf("Please enter the number of movements you want:(1 to %d)\n",j);
                 scanf("%d",&n);
-            }while (n>j);
+                if(n*Energy > list[place].energy[(*i)/2]){
+                    setTextColor(4,0);
+                    printf("your energy isn't enough for this movement!!!\n");
+                    printf("please decrease number of your movement\n");
+                    setTextColor(11,0);
+                }
+            }while (n>j || n*Energy > list[place].energy[(*i)/2]);
 
+            int EFood=SearchFood(animaltype[*i],animaltype[*i+1]+n);
+            if(EFood!=-1){
+                list[place].energy[*i/2]+=Food_energy[EFood];
+            }
             if(world[animaltype[*i]][animaltype[*i+1]+n]=='-'){
                swap(world,animaltype[*i],animaltype[*i+1]+n,animaltype[*i],animaltype[*i+1]);
                animaltype[*i+1]+=n; 
@@ -435,6 +521,15 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
                sw=1;
                world[animaltype[*i]][animaltype[*i+1]]='-'; 
             }
+            list[place].energy[(*i)/2]-=n*Energy;
+           if(list[place].energy[(*i)/2]<Energy){
+               SwforAnimal[(*i)/2]=1;
+               Food_energy[NumberFood]=list[place].energy[(*i)/2];
+               Food_Position[NumberFood*2]=animaltype[*i];
+               Food_Position[NumberFood*2 +1]=animaltype[*i+1];
+               world[animaltype[*i]][animaltype[*i+1]]='-';
+               NumberFood++;
+           } 
         }
     }
     else if(direc=='x'){
@@ -458,12 +553,22 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
             *i-=2;
         }
         else{
-            printf("you can have only ((%d)) movementes through this direction \n",j);
+            printf("you can have only ((%d)) movementes along this direction \n",j);
             do{
                 printf("Please enter the number of movements you want:(1 to %d)\n",j);
                 scanf("%d",&n);
-            }while (n>j);
+                if(n*Energy > list[place].energy[(*i)/2]){
+                    setTextColor(4,0);
+                    printf("your energy isn't enough for this movement!!!\n");
+                    printf("please decrease number of your movement\n");
+                    setTextColor(11,0);
+                }
+            }while (n>j || n*Energy > list[place].energy[(*i)/2]);
 
+            int EFood=SearchFood(animaltype[*i]+n,animaltype[*i+1]);
+            if(EFood!=-1){
+                list[place].energy[(*i)/2]+=Food_energy[EFood];
+            }
             if(world[animaltype[*i]+n][animaltype[*i+1]]=='-'){
                 swap(world,animaltype[*i]+n,animaltype[*i+1],animaltype[*i],animaltype[*i+1]);
                 animaltype[*i]+=n;  
@@ -473,6 +578,15 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
                 sw=1;
                 world[animaltype[*i]][animaltype[*i+1]]='-';
             }
+            list[place].energy[(*i)/2]-=n*Energy;
+           if(list[place].energy[(*i)/2]<Energy){
+               SwforAnimal[(*i)/2]=1;
+               Food_energy[NumberFood]=list[place].energy[(*i)/2];
+               Food_Position[NumberFood*2]=animaltype[*i];
+               Food_Position[NumberFood*2 +1]=animaltype[*i+1];
+               world[animaltype[*i]][animaltype[*i+1]]='-';
+               NumberFood++;
+           } 
         }
     }
     else if(direc=='q'){
@@ -496,13 +610,23 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
             *i-=2;
         }
         else{
-            printf("you can have only ((%d)) movementes through this direction \n",j);
+            printf("you can have only ((%d)) movementes along this direction \n",j);
             do{
                 printf("Please enter the number of movements you want:(1 to %d)\n",j);
                 scanf("%d",&n);
-            }while (n>j);
+                if(n*Energy > list[place].energy[*i/2]){
+                    setTextColor(4,0);
+                    printf("your energy isn't enough for this movement!!!\n");
+                    printf("please decrease number of your movement\n");
+                    setTextColor(11,0);
+                }
+            }while (n>j || n*Energy > list[place].energy[*i/2]);
 
-            if(world[animaltype[*i]-j][animaltype[*i+1]-j]=='-' ){
+            int EFood=SearchFood(animaltype[*i]-n,animaltype[*i+1]-n);
+            if(EFood!=-1){
+                list[place].energy[*i/2]+=Food_energy[EFood];
+            }
+            if(world[animaltype[*i]-n][animaltype[*i+1]-n]=='-' ){
                 swap(world,animaltype[*i]-n,animaltype[*i+1]-n,animaltype[*i],animaltype[*i+1]);
                 animaltype[*i]-=n;
                 animaltype[*i+1]-=n;  
@@ -512,6 +636,15 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
                sw=1;
                world[animaltype[*i]][animaltype[*i+1]]='-'; 
             }
+            list[place].energy[*i/2]-=n*Energy;
+           if(list[place].energy[*i/2]<Energy){
+               SwforAnimal[*i/2]=1;
+               Food_energy[NumberFood]=list[place].energy[*i/2];
+               Food_Position[NumberFood*2]=animaltype[*i];
+               Food_Position[NumberFood*2 +1]=animaltype[*i+1];
+               world[animaltype[*i]][animaltype[*i+1]]='-';
+               NumberFood++;
+           } 
         }
     }
     else if(direc=='e'){
@@ -535,12 +668,22 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
             *i-=2;
         }
         else{
-           printf("you can have only ((%d)) movementes through this direction \n",j);
+           printf("you can have only ((%d)) movementes along this direction \n",j);
            do{
                 printf("Please enter the number of movements you want:(1 to %d)\n",j);
                 scanf("%d",&n);
-            }while (n>j);
+                if(n*Energy > list[place].energy[*i/2]){
+                    setTextColor(4,0);
+                    printf("your energy isn't enough for this movement!!!\n");
+                    printf("please decrease number of your movement\n");
+                    setTextColor(11,0);
+                }
+            }while (n>j || n*Energy > list[place].energy[*i/2]);
 
+            int EFood=SearchFood(animaltype[*i]-n,animaltype[*i+1]+n);
+            if(EFood!=-1){
+                list[place].energy[*i/2]+=Food_energy[EFood];
+            }
            if(world[animaltype[*i]-n][animaltype[*i+1]+n]=='-'){
                swap(world,animaltype[*i]-n,animaltype[*i+1]+n,animaltype[*i],animaltype[*i+1]);
                animaltype[*i]-=n;
@@ -551,6 +694,15 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
               sw=1;
               world[animaltype[*i]][animaltype[*i+1]]='-'; 
            }
+           list[place].energy[*i/2]-=n*Energy;
+           if(list[place].energy[*i/2]<Energy){
+               SwforAnimal[*i/2]=1;
+               Food_energy[NumberFood]=list[place].energy[*i/2];
+               Food_Position[NumberFood*2]=animaltype[*i];
+               Food_Position[NumberFood*2 +1]=animaltype[*i+1];
+               world[animaltype[*i]][animaltype[*i+1]]='-';
+               NumberFood++;
+           } 
         }
     }
     else if(direc=='c'){
@@ -574,12 +726,22 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
             *i-=2;
         }
         else{
-            printf("you can have only ((%d)) movementes through this direction \n",j);
+            printf("you can have only ((%d)) movementes along this direction \n",j);
             do{
                 printf("Please enter the number of movements you want:(1 to %d)\n",j);
                 scanf("%d",&n);
-            }while (n>j);
+                if(n*Energy > list[place].energy[*i/2]){
+                    setTextColor(4,0);
+                    printf("your energy isn't enough for this movement!!!\n");
+                    printf("please decrease number of your movement\n");
+                    setTextColor(11,0);
+                }
+            }while (n>j || n*Energy > list[place].energy[*i/2]);
 
+            int EFood=SearchFood(animaltype[*i]+n,animaltype[*i+1]+n);
+            if(EFood!=-1){
+                list[place].energy[*i/2]+=Food_energy[EFood];
+            }
             if(world[animaltype[*i]+n][animaltype[*i+1]+n]=='-'){
                 swap(world,animaltype[*i]+n,animaltype[*i+1]+n,animaltype[*i],animaltype[*i+1]);
                 animaltype[*i]+=n;
@@ -590,6 +752,15 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
                sw=1;
                world[animaltype[*i]][animaltype[*i+1]]='-'; 
             }
+            list[place].energy[*i/2]-=n*Energy;
+           if(list[place].energy[*i/2]<Energy){
+               SwforAnimal[*i/2]=1;
+               Food_energy[NumberFood]=list[place].energy[*i/2];
+               Food_Position[NumberFood*2]=animaltype[*i];
+               Food_Position[NumberFood*2 +1]=animaltype[*i+1];
+               world[animaltype[*i]][animaltype[*i+1]]='-';
+               NumberFood++;
+           } 
         }
     }
     else if(direc=='z'){
@@ -613,12 +784,22 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
             *i-=2;
         }
         else{
-            printf("you can have only ((%d)) movementes through this direction \n",j);
+            printf("you can have only ((%d)) movementes along this direction \n",j);
             do{
                 printf("Please enter the number of movements you want:(1 to %d)\n",j);
                 scanf("%d",&n);
-            }while (n>j);
+                if(n*Energy > list[place].energy[*i/2]){
+                    setTextColor(4,0);
+                    printf("your energy isn't enough for this movement!!!\n");
+                    printf("please decrease number of your movement\n");
+                    setTextColor(11,0);
+                }
+            }while (n>j || n*Energy > list[place].energy[*i/2]);
 
+            int EFood=SearchFood(animaltype[*i]+n,animaltype[*i+1]-n);
+            if(EFood!=-1){
+                list[place].energy[*i/2]+=Food_energy[EFood];
+            }
             if(world[animaltype[*i]+n][animaltype[*i+1]-n]=='-'){
                swap(world,animaltype[*i]+1,animaltype[*i+1]-1,animaltype[*i],animaltype[*i+1]);
                animaltype[*i]+=1;
@@ -629,6 +810,15 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
                sw=1;
                world[animaltype[*i]][animaltype[*i+1]]='-'; 
             }
+            list[place].energy[*i/2]-=n*Energy;
+           if(list[place].energy[*i/2]<Energy){
+               SwforAnimal[*i/2]=1;
+               Food_energy[NumberFood]=list[place].energy[*i/2];
+               Food_Position[NumberFood*2]=animaltype[*i];
+               Food_Position[NumberFood*2 +1]=animaltype[*i+1];
+               world[animaltype[*i]][animaltype[*i+1]]='-';
+               NumberFood++;
+           } 
         }
         }
     else{
@@ -639,7 +829,6 @@ void movewithkey2( int n , int animaltype[150] , char direc , int* i){
         *i-=2;
     }
     *i += 2;
-   // mapprinter(world,size,animaltype[*i],animaltype[*i+1]);
 }
 
 
@@ -736,9 +925,8 @@ int main(){
         fprintf(log , "\n");
     }
     fprintf(log , "\n");
-    /*mapprinter2(world,size);
 
-    printf("\n");*/
+
     setTextColor(11,0);
     int n=0;
     int number = 0;
@@ -774,12 +962,13 @@ int main(){
         }
     }
 
-    int z=search(list,controlanimal); //getting place of controlled creature in array "list".
+    int place=search(list,controlanimal); //getting place of controlled creature in array "list".
 
     while(sw==0){
         int i = 0;
         while(i<n && sw ==0){
-            animal = controlanimal;
+            if(SwforAnimal[i/2]==0){
+                animal = controlanimal;
 
             printf("you are at position:(%d,%d)\n",panimal[i],panimal[i+1]);
             int x1 = panimal[i];
@@ -788,14 +977,18 @@ int main(){
             moving_creature = world[x1][y1];
             printf("please enter direction of your movement:\n");
             scanf(" %c" , &direc);
-            movewithkey2( list[z].numberm , panimal , direc , &i );
-            system("cls");
+            movewithkey2( place , panimal , direc , &i );
+            //system("cls");
             if(moved == 1){
                 fprintf(log , "moving creature %c in (%d,%d) into %c direction\n" , moving_creature, x1 , y1 , move_direction );
             }
             if(sw==1) {
                 printf("gg , wp all -> creature %c won!!!",winner);
                 fprintf( log, "gg , wp all -> creature %c won!!!",winner);
+            }
+            }
+            else{
+                i+=2;
             }
         }
         int j = 0;
@@ -811,7 +1004,7 @@ int main(){
             moveunc(j);
             fprintf(log , "moving creature %c in (%d,%d) into %c direction\n" , animal ,x , y , move_direction );
             sleep(2000);
-            system("cls");
+            //system("cls");
             j += 2;
             if(sw==1){
                 printf("gg , wp all -> creature %c won!!!",winner);
