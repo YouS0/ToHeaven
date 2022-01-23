@@ -969,13 +969,13 @@ void moveunc(int j , int animal_place){
 int main(){
 
     FILE *log;
-    log = fopen("C:\\Team_7_Final_Project\\game-log.txt" , "wt");
+    log = fopen("game-log.txt" , "wt");
     rewind(log);
     fprintf(log , "salam dadash");
     FILE *readfile;
     int c[2];
 
-    readfile = fopen("C:\\Team_7_Final_Project\\map-phase1.txt" , "rt" );
+    readfile = fopen("map-phase1.txt" , "rt" );
     if(!readfile || !log) printf("File did not open!");
     mapreader(readfile);
     for(int i=0;i<size;i++){
