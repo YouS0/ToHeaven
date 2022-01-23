@@ -31,6 +31,14 @@ int controlanimal;
 int movements ;
 int move_switch;
 int unc_possible_move;
+void gotoxy(int x, int y) {
+    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    COORD cursorCoord;
+    cursorCoord.X = y;
+    cursorCoord.Y = x;
+    SetConsoleCursorPosition(consoleHandle, cursorCoord);
+}
+
 void setTextColor(int textColor, int backColor) {
     HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     int colorAttribute = backColor << 4 | textColor;
@@ -135,6 +143,9 @@ void mapreader(FILE *readfile){
     fscanf(readfile,"%c",&ch);
     k++,i+=2,NumberFood++;
     }
+    for(int i = 0 ; i < NumberFood ; i++){
+        world[Food_Position[i]][Food_Position[i+1]] = 'F';
+    }
     fscanf(readfile,"%c%c\n",&ch,&ch);
 
     strcpy(endofline,"===\n");
@@ -179,11 +190,15 @@ void mapreader(FILE *readfile){
         i++;
     }   
 
+
 }
 
 
 void mapprinter(char world[][20],int size,int k,int z){
     printf("\n");
+    for(int i = 0 ; i<NumberFood , Food_energy[i] > 0 ; i++){
+        printf("Food (%d,%d) has %d\n" , Food_Position[2*i] , Food_Position[2*i+1] , Food_energy[i]);
+    }
     for(int i=0;i<size;i++){
         setTextColor(11,0);
         printf("|");
@@ -356,7 +371,7 @@ void movewithkey(int animaltype[150] , char direc , int* i){
 }
 
 
-void movewithkey2( int place , int animaltype[150] , char direc , int* i){
+void movewithkey2( int place , int animaltype[150] , char direc , int* i , char animal){
     int n=list[place].numberm;
     int Energy=list[place].movemente;
     moved = 1;
@@ -364,7 +379,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
         move_direction = 'a';
         int j=1;
         while(j<=n){
-            if(world[animaltype[*i]][animaltype[*i+1]-j]=='-' ||world[animaltype[*i]][animaltype[*i+1]-j]=='H'){
+            if(world[animaltype[*i]][animaltype[*i+1]-j]=='-' ||world[animaltype[*i]][animaltype[*i+1]-j]=='H' || world[animaltype[*i]][animaltype[*i+1]-j]=='F'){
                 j++;
             }
             else{
@@ -393,14 +408,17 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
             }while (n>j || n*Energy > list[place].energy[(*i)/2]);
 
             int EFood=SearchFood(animaltype[*i],animaltype[*i+1]-n);
-            if(EFood!=-1){
-                list[place].energy[*i/2]+=Food_energy[EFood];
-            }
             if(world[animaltype[*i]][animaltype[*i+1]-n]=='-'){
                swap(world,animaltype[*i],animaltype[*i+1],animaltype[*i],animaltype[*i+1]-n);
                animaltype[*i+1]-=n; 
             }
-
+            else if(world[animaltype[*i]][animaltype[*i+1]-n]=='F'){
+                world[animaltype[*i]][animaltype[*i+1]] = '-';
+                world[animaltype[*i]][animaltype[*i+1]-n] = animal;
+                list[place].energy[*i/2]+=Food_energy[EFood];
+                Food_energy[EFood] = 0;
+                animaltype[*i+1]-=n; 
+            }
             else{
                 winner = animal;
                 sw=1;
@@ -412,7 +430,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
                Food_energy[NumberFood]=list[place].energy[(*i)/2];
                Food_Position[NumberFood*2]=animaltype[*i];
                Food_Position[NumberFood*2 +1]=animaltype[*i+1];
-               world[animaltype[*i]][animaltype[*i+1]]='-';
+               world[animaltype[*i]][animaltype[*i+1]]='F';
                NumberFood++;
            } 
         }
@@ -421,7 +439,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
         move_direction = 'w';
         int j=1;
         while(j<=n){
-            if(world[animaltype[*i]-j][animaltype[*i+1]]=='-' ||world[animaltype[*i]-j][animaltype[*i+1]]=='H'){
+            if(world[animaltype[*i]-j][animaltype[*i+1]]=='-' ||world[animaltype[*i]-j][animaltype[*i+1]]=='H'||world[animaltype[*i]-j][animaltype[*i+1]]=='H'){
                 j++;
             }
             else{
@@ -450,14 +468,17 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
             }while (n>j || n*Energy > list[place].energy[(*i)/2]);
 
             int EFood=SearchFood(animaltype[*i]-n,animaltype[*i+1]);
-            if(EFood!=-1){
-                list[place].energy[*i/2]+=Food_energy[EFood];
-            }
             if(world[animaltype[*i]-n][animaltype[*i+1]]=='-'){
                swap(world,animaltype[*i],animaltype[*i+1],animaltype[*i]-n,animaltype[*i+1]);
                animaltype[*i]-=n; 
             }
-
+            else if(world[animaltype[*i]-n][animaltype[*i+1]]=='F'){
+                world[animaltype[*i]][animaltype[*i+1]] = '-';
+                world[animaltype[*i]-n][animaltype[*i+1]] = animal;
+                list[place].energy[*i/2]+=Food_energy[EFood];
+                Food_energy[EFood] = 0;
+                animaltype[*i]-=n; 
+            }
             else{
                 winner = animal;
                 sw=1;
@@ -469,7 +490,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
                Food_energy[NumberFood]=list[place].energy[(*i)/2];
                Food_Position[NumberFood*2]=animaltype[*i];
                Food_Position[NumberFood*2 +1]=animaltype[*i+1];
-               world[animaltype[*i]][animaltype[*i+1]]='-';
+               world[animaltype[*i]][animaltype[*i+1]]='F';
                NumberFood++;
            } 
         }
@@ -479,7 +500,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
         move_direction = 'd';
         int j=1;
         while(j<=n){
-            if(world[animaltype[*i]][animaltype[*i+1]+j]=='-' || world[animaltype[*i]][animaltype[*i+1]+j]=='H'){
+            if(world[animaltype[*i]][animaltype[*i+1]+j]=='-' || world[animaltype[*i]][animaltype[*i+1]+j]=='H'|| world[animaltype[*i]][animaltype[*i+1]+j]=='F'){
                 j++;
             }
             else{
@@ -509,13 +530,17 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
             }while (n>j || n*Energy > list[place].energy[(*i)/2]);
 
             int EFood=SearchFood(animaltype[*i],animaltype[*i+1]+n);
-            if(EFood!=-1){
-                list[place].energy[*i/2]+=Food_energy[EFood];
-            }
             if(world[animaltype[*i]][animaltype[*i+1]+n]=='-'){
                swap(world,animaltype[*i],animaltype[*i+1]+n,animaltype[*i],animaltype[*i+1]);
                animaltype[*i+1]+=n; 
-            } 
+            }
+            else if(world[animaltype[*i]][animaltype[*i+1]+n]=='F'){
+                world[animaltype[*i]][animaltype[*i+1]] = '-';
+                world[animaltype[*i]][animaltype[*i+1]+n] = animal;
+                list[place].energy[*i/2]+=Food_energy[EFood];
+                Food_energy[EFood] = 0;
+                animaltype[*i+1]+=n; 
+            }
             else{
                winner = animal;
                sw=1;
@@ -527,7 +552,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
                Food_energy[NumberFood]=list[place].energy[(*i)/2];
                Food_Position[NumberFood*2]=animaltype[*i];
                Food_Position[NumberFood*2 +1]=animaltype[*i+1];
-               world[animaltype[*i]][animaltype[*i+1]]='-';
+               world[animaltype[*i]][animaltype[*i+1]]='F';
                NumberFood++;
            } 
         }
@@ -536,7 +561,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
         move_direction = 'x';
         int j=1;
         while(j<=n){
-            if(world[animaltype[*i]+j][animaltype[*i+1]]=='-' || world[animaltype[*i]+j][animaltype[*i+1]]=='H'){
+            if(world[animaltype[*i]+j][animaltype[*i+1]]=='-' || world[animaltype[*i]+j][animaltype[*i+1]]=='H'|| world[animaltype[*i]+j][animaltype[*i+1]]=='F'){
                 j++;
             }
             else{
@@ -566,11 +591,15 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
             }while (n>j || n*Energy > list[place].energy[(*i)/2]);
 
             int EFood=SearchFood(animaltype[*i]+n,animaltype[*i+1]);
-            if(EFood!=-1){
-                list[place].energy[(*i)/2]+=Food_energy[EFood];
-            }
             if(world[animaltype[*i]+n][animaltype[*i+1]]=='-'){
                 swap(world,animaltype[*i]+n,animaltype[*i+1],animaltype[*i],animaltype[*i+1]);
+                animaltype[*i]+=n;  
+            }
+            else if(world[animaltype[*i]+n][animaltype[*i+1]]=='F'){
+                world[animaltype[*i]][animaltype[*i+1]] = '-';
+                world[animaltype[*i]+n][animaltype[*i+1]] = animal;
+                list[place].energy[*i/2]+=Food_energy[EFood];
+                Food_energy[EFood] = 0;
                 animaltype[*i]+=n;  
             }
             else{
@@ -584,7 +613,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
                Food_energy[NumberFood]=list[place].energy[(*i)/2];
                Food_Position[NumberFood*2]=animaltype[*i];
                Food_Position[NumberFood*2 +1]=animaltype[*i+1];
-               world[animaltype[*i]][animaltype[*i+1]]='-';
+               world[animaltype[*i]][animaltype[*i+1]]='F';
                NumberFood++;
            } 
         }
@@ -593,7 +622,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
         move_direction = 'q';
         int j=1;
         while(j<=n){
-            if(world[animaltype[*i]-j][animaltype[*i+1]-j]=='-' || world[animaltype[*i]-j][animaltype[*i+1]-j]=='H'){
+            if(world[animaltype[*i]-j][animaltype[*i+1]-j]=='-' || world[animaltype[*i]-j][animaltype[*i+1]-j]=='H'|| world[animaltype[*i]-j][animaltype[*i+1]-j]=='F'){
                 j++;
             }
             else{
@@ -623,11 +652,16 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
             }while (n>j || n*Energy > list[place].energy[*i/2]);
 
             int EFood=SearchFood(animaltype[*i]-n,animaltype[*i+1]-n);
-            if(EFood!=-1){
-                list[place].energy[*i/2]+=Food_energy[EFood];
-            }
             if(world[animaltype[*i]-n][animaltype[*i+1]-n]=='-' ){
                 swap(world,animaltype[*i]-n,animaltype[*i+1]-n,animaltype[*i],animaltype[*i+1]);
+                animaltype[*i]-=n;
+                animaltype[*i+1]-=n;  
+            }
+            else if(world[animaltype[*i]-n][animaltype[*i+1]-n]=='F'){
+                world[animaltype[*i]][animaltype[*i+1]] = '-';
+                world[animaltype[*i]-n][animaltype[*i+1]-n] = animal;
+                list[place].energy[*i/2]+=Food_energy[EFood];
+                Food_energy[EFood] = 0;
                 animaltype[*i]-=n;
                 animaltype[*i+1]-=n;  
             }
@@ -642,7 +676,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
                Food_energy[NumberFood]=list[place].energy[*i/2];
                Food_Position[NumberFood*2]=animaltype[*i];
                Food_Position[NumberFood*2 +1]=animaltype[*i+1];
-               world[animaltype[*i]][animaltype[*i+1]]='-';
+               world[animaltype[*i]][animaltype[*i+1]]='F';
                NumberFood++;
            } 
         }
@@ -651,7 +685,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
         move_direction = 'e';
         int j=1;
         while(j<=n){
-            if(world[animaltype[*i]-j][animaltype[*i+1]+j]=='-' || world[animaltype[*i]-j][animaltype[*i+1]+j]=='H'){
+            if(world[animaltype[*i]-j][animaltype[*i+1]+j]=='-' || world[animaltype[*i]-j][animaltype[*i+1]+j]=='H'|| world[animaltype[*i]-j][animaltype[*i+1]+j]=='F'){
                 j++;
             }
             else{
@@ -681,14 +715,19 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
             }while (n>j || n*Energy > list[place].energy[*i/2]);
 
             int EFood=SearchFood(animaltype[*i]-n,animaltype[*i+1]+n);
-            if(EFood!=-1){
-                list[place].energy[*i/2]+=Food_energy[EFood];
-            }
            if(world[animaltype[*i]-n][animaltype[*i+1]+n]=='-'){
                swap(world,animaltype[*i]-n,animaltype[*i+1]+n,animaltype[*i],animaltype[*i+1]);
                animaltype[*i]-=n;
                animaltype[*i+1]+=n;
-           } 
+            }
+            else if(world[animaltype[*i]-n][animaltype[*i+1]+n]=='F'){
+                world[animaltype[*i]][animaltype[*i+1]] = '-';
+                world[animaltype[*i]-n][animaltype[*i+1]+n] = animal;
+                list[place].energy[*i/2]+=Food_energy[EFood];
+                Food_energy[EFood] = 0;
+               animaltype[*i]-=n;
+               animaltype[*i+1]+=n;
+            } 
            else{
               winner = animal;
               sw=1;
@@ -700,7 +739,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
                Food_energy[NumberFood]=list[place].energy[*i/2];
                Food_Position[NumberFood*2]=animaltype[*i];
                Food_Position[NumberFood*2 +1]=animaltype[*i+1];
-               world[animaltype[*i]][animaltype[*i+1]]='-';
+               world[animaltype[*i]][animaltype[*i+1]]='F';
                NumberFood++;
            } 
         }
@@ -709,7 +748,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
         move_direction = 'c';
         int j=1;
         while(j<=n){
-            if(world[animaltype[*i]+j][animaltype[*i+1]+j]=='-' || world[animaltype[*i]+j][animaltype[*i+1]+j]=='H'){
+            if(world[animaltype[*i]+j][animaltype[*i+1]+j]=='-' || world[animaltype[*i]+j][animaltype[*i+1]+j]=='H'|| world[animaltype[*i]+j][animaltype[*i+1]+j]=='F'){
                 j++;
             }
             else{
@@ -739,11 +778,16 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
             }while (n>j || n*Energy > list[place].energy[*i/2]);
 
             int EFood=SearchFood(animaltype[*i]+n,animaltype[*i+1]+n);
-            if(EFood!=-1){
-                list[place].energy[*i/2]+=Food_energy[EFood];
-            }
             if(world[animaltype[*i]+n][animaltype[*i+1]+n]=='-'){
                 swap(world,animaltype[*i]+n,animaltype[*i+1]+n,animaltype[*i],animaltype[*i+1]);
+                animaltype[*i]+=n;
+                animaltype[*i+1]+=n;
+            }
+            else if(world[animaltype[*i]+n][animaltype[*i+1]+n]=='F'){
+                world[animaltype[*i]][animaltype[*i+1]] = '-';
+                world[animaltype[*i]+n][animaltype[*i+1]+n] = animal;
+                list[place].energy[*i/2]+=Food_energy[EFood];
+                Food_energy[EFood] = 0;
                 animaltype[*i]+=n;
                 animaltype[*i+1]+=n;
             }
@@ -758,7 +802,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
                Food_energy[NumberFood]=list[place].energy[*i/2];
                Food_Position[NumberFood*2]=animaltype[*i];
                Food_Position[NumberFood*2 +1]=animaltype[*i+1];
-               world[animaltype[*i]][animaltype[*i+1]]='-';
+               world[animaltype[*i]][animaltype[*i+1]]='F';
                NumberFood++;
            } 
         }
@@ -767,7 +811,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
         move_direction = 'z';
         int j=1;
         while(j<=n){
-            if(world[animaltype[*i]+j][animaltype[*i+1]-j]=='-' || world[animaltype[*i]+j][animaltype[*i+1]-j]=='H'){
+            if(world[animaltype[*i]+j][animaltype[*i+1]-j]=='-' || world[animaltype[*i]+j][animaltype[*i+1]-j]=='H' || world[animaltype[*i]+j][animaltype[*i+1]-j]=='H'){
                 j++;
             }
             else{
@@ -797,13 +841,18 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
             }while (n>j || n*Energy > list[place].energy[*i/2]);
 
             int EFood=SearchFood(animaltype[*i]+n,animaltype[*i+1]-n);
-            if(EFood!=-1){
-                list[place].energy[*i/2]+=Food_energy[EFood];
-            }
             if(world[animaltype[*i]+n][animaltype[*i+1]-n]=='-'){
-               swap(world,animaltype[*i]+1,animaltype[*i+1]-1,animaltype[*i],animaltype[*i+1]);
+               swap(world,animaltype[*i]+n,animaltype[*i+1]-n,animaltype[*i],animaltype[*i+1]);
                animaltype[*i]+=1;
                animaltype[*i+1]-=1; 
+            }
+            else if(world[animaltype[*i]+n][animaltype[*i+1]-n]=='F'){
+                world[animaltype[*i]][animaltype[*i+1]] = '-';
+                world[animaltype[*i]+n][animaltype[*i+1]-n] = animal;
+                list[place].energy[*i/2]+=Food_energy[EFood];
+                Food_energy[EFood] = 0;
+                animaltype[*i]+=1;
+                animaltype[*i+1]-=1; 
             }
             else{
                winner = animal;
@@ -816,7 +865,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i){
                Food_energy[NumberFood]=list[place].energy[*i/2];
                Food_Position[NumberFood*2]=animaltype[*i];
                Food_Position[NumberFood*2 +1]=animaltype[*i+1];
-               world[animaltype[*i]][animaltype[*i+1]]='-';
+               world[animaltype[*i]][animaltype[*i+1]]='F';
                NumberFood++;
            } 
         }
@@ -853,56 +902,66 @@ void theNearest(int x , int y, char type) {
     
 }
 
-void moveunc(int j){
+void moveunc(int j , int animal_place){
     int x = noncanimals[j];
     int y = noncanimals[j+1];
-    
+    list[animal_place].energy[j/2] -= list[animal_place].movemente;
+    if(list[animal_place].energy[(j)/2]<list[animal_place].movemente){
+        SwforAnimal[(j)/2]=1;
+        Food_energy[NumberFood]=list[animal_place].energy[(j)/2];
+        Food_Position[NumberFood*2]=noncanimals[j];
+        Food_Position[NumberFood*2 +1]=noncanimals[j+1];
+        world[noncanimals[j]][noncanimals[j+1]]='F';
+        NumberFood++;
+        return;
+    }
     if(x>unc[0]){
         if(y>unc[1]){
-            if(world[x-1][y-1] == '-' || world[x-1][y-1] == 'H')while(movements<unc_possible_move && sw == 0) movewithkey(noncanimals , 'q' , &j), movements++;
-            else if (world[x-1][y] == '-'|| world[x-1][y] == 'H') while(movements<unc_possible_move)movewithkey(noncanimals , 'a' , &j), movements++;
-            else if ((world[x][y-1] == '-'|| world[x][y-1] == 'H')) while(movements<unc_possible_move)movewithkey(noncanimals , 'x' , &j), movements++;
+            if(world[x-1][y-1] == '-' || world[x-1][y-1] == 'H'|| world[x-1][y-1] == 'F')while(movements<unc_possible_move && sw == 0) movewithkey(noncanimals , 'q' , &j), movements++;
+            else if (world[x-1][y] == '-'|| world[x-1][y] == 'H' || world[x-1][y] == 'F') while(movements<unc_possible_move)movewithkey(noncanimals , 'a' , &j), movements++;
+            else if ((world[x][y-1] == '-'|| world[x][y-1] == 'H'|| world[x][y-1] == 'F')) while(movements<unc_possible_move)movewithkey(noncanimals , 'x' , &j), movements++;
         }
         if(y<unc[1]){
-            if(world[x-1][y+1] == '-'|| world[x-1][y+1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'e' , &j), movements++;
-            else if(world[x][y+1] == '-'|| world[x][y+1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'd' , &j), movements++;
-            else if(world[x-1][y] == '-'|| world[x-1][y] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'w' , &j), movements++;
+            if(world[x-1][y+1] == '-'|| world[x-1][y+1] == 'H'|| world[x-1][y+1] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'e' , &j), movements++;
+            else if(world[x][y+1] == '-'|| world[x][y+1] == 'H'|| world[x][y+1] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'd' , &j), movements++;
+            else if(world[x-1][y] == '-'|| world[x-1][y] == 'H'|| world[x-1][y] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'w' , &j), movements++;
         }
         if(y==unc[1]){
-            if(world[x-1][y] == '-'|| world[x-1][y] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'w' , &j), movements++;
-            else if(world[x-1][y+1]=='-'|| world[x-1][y+1] == 'H') while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'e' , &j), movements++;
-            else if(world[x+1][y+1]=='-'|| world[x+1][y+1] == 'H') while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'c' , &j), movements++;
+            if(world[x-1][y] == '-'|| world[x-1][y] == 'H'|| world[x-1][y] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'w' , &j), movements++;
+            else if(world[x-1][y+1]=='-'|| world[x-1][y+1] == 'H'|| world[x-1][y+1] == 'F') while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'e' , &j), movements++;
+            else if(world[x+1][y+1]=='-'|| world[x+1][y+1] == 'H'|| world[x+1][y+1] == 'F') while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'c' , &j), movements++;
         }
     }
     if(x<unc[0]){
         if(y>unc[1]){
-            if(world[x+1][y-1] == '-'|| world[x+1][y-1] == 'H' )while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'z' , &j), movements++;
-            else if(world[x+1][y] == '-'|| world[x+1][y] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'x' , &j), movements++;
-            else if(world[x][y-1] == '-'|| world[x][y-1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'a' , &j), movements++;
+            if(world[x+1][y-1] == '-'|| world[x+1][y-1] == 'H'|| world[x+1][y-1] == 'F' )while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'z' , &j), movements++;
+            else if(world[x+1][y] == '-'|| world[x+1][y] == 'H'|| world[x+1][y] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'x' , &j), movements++;
+            else if(world[x][y-1] == '-'|| world[x][y-1] == 'H'|| world[x][y-1] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'a' , &j), movements++;
         }
         if(y<unc[1]){
-            if(world[x+1][y+1] == '-'|| world[x+1][y+1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'c' , &j), movements++;
-            else if(world[x+1][y] == '-'|| world[x+1][y] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'x' , &j), movements++;
-            else if(world[x][y+1] == '-'|| world[x+1][y+1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'd' , &j), movements++;
+            if(world[x+1][y+1] == '-'|| world[x+1][y+1] == 'H'|| world[x+1][y+1] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'c' , &j), movements++;
+            else if(world[x+1][y] == '-'|| world[x+1][y] == 'H'|| world[x+1][y] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'x' , &j), movements++;
+            else if(world[x][y+1] == '-'|| world[x][y+1] == 'H'|| world[x][y+1] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'd' , &j), movements++;
         }
         if(y==unc[1]){
-            if(world[x+1][y] == '-'|| world[x+1][y] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'x' , &j), movements++;
-            else if(world[x+1][y-1] == '-'|| world[x+1][y-1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'z' , &j), movements++;
-            else if(world[x+1][y+1] == '-'|| world[x+1][y+1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'c' , &j), movements++;
+            if(world[x+1][y] == '-'|| world[x+1][y] == 'H'|| world[x+1][y] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'x' , &j), movements++;
+            else if(world[x+1][y-1] == '-'|| world[x+1][y-1] == 'H'|| world[x+1][y-1] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'z' , &j), movements++;
+            else if(world[x+1][y+1] == '-'|| world[x+1][y+1] == 'H'|| world[x+1][y+1] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'c' , &j), movements++;
         }
     }
     if(x==unc[0]){
         if(y>unc[1]){
-            if(world[x][y-1] == '-'|| world[x][y-1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'a' , &j), movements++;
-            else if(world[x-1][y-1] == '-'|| world[x-1][y+1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'q' , &j), movements++;
-            else if(world[x+1][y-1] == '-'|| world[x+1][y-1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'z' , &j), movements++;
+            if(world[x][y-1] == '-'|| world[x][y-1] == 'H'|| world[x][y-1] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'a' , &j), movements++;
+            else if(world[x-1][y-1] == '-'|| world[x-1][y-1] == 'H'|| world[x-1][y-1] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'q' , &j), movements++;
+            else if(world[x+1][y-1] == '-'|| world[x+1][y-1] == 'H'|| world[x+1][y-1] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'z' , &j), movements++;
         }
         if(y<unc[1]){
-            if(world[x][y+1] == '-'|| world[x][y+1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'd' , &j), movements++;
-            else if(world[x-1][y+1]=='-'|| world[x-1][y+1] == 'H') while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'e' , &j) , movements++;
-            else if(world[x+1][y+1] == '-'|| world[x+1][y+1] == 'H')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'c' , &j) , movements++;
+            if(world[x][y+1] == '-'|| world[x][y+1] == 'H'|| world[x][y+1] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'd' , &j), movements++;
+            else if(world[x-1][y+1]=='-'|| world[x-1][y+1] == 'H'|| world[x-1][y+1] == 'F') while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'e' , &j) , movements++;
+            else if(world[x+1][y+1] == '-'|| world[x+1][y+1] == 'H'|| world[x+1][y+1] == 'F')while(movements<unc_possible_move&& sw == 0)movewithkey(noncanimals , 'c' , &j) , movements++;
         }
     }
+
     
     
 }
@@ -910,11 +969,13 @@ void moveunc(int j){
 int main(){
 
     FILE *log;
-    log = fopen("game-log.txt" , "wt");
+    log = fopen("C:\\Team_7_Final_Project\\game-log.txt" , "wt");
+    rewind(log);
+    fprintf(log , "salam dadash");
     FILE *readfile;
     int c[2];
 
-    readfile = fopen("map-phase1.txt" , "rt" );
+    readfile = fopen("C:\\Team_7_Final_Project\\map-phase1.txt" , "rt" );
     if(!readfile || !log) printf("File did not open!");
     mapreader(readfile);
     for(int i=0;i<size;i++){
@@ -954,7 +1015,7 @@ int main(){
     for(int i=0;i<size;i++){
         for(int j=0;j<size;j++){
 
-            if(world[i][j] != controlanimal && world[i][j] != 'H' && world[i][j] != '#' && world[i][j] != '-'){
+            if(world[i][j] != controlanimal && world[i][j] != 'H' && world[i][j] != '#' && world[i][j] != '-' && world[i][j] != 'F'){
                 noncanimals[number]=i;
                 noncanimals[number+1]=j;
                 number+=2;
@@ -970,27 +1031,27 @@ int main(){
             if(SwforAnimal[i/2]==0){
                 animal = controlanimal;
 
-            printf("you are at position:(%d,%d)\n",panimal[i],panimal[i+1]);
-            int x1 = panimal[i];
-            int y1 = panimal[i+1];
-            mapprinter(world,size,x1,y1);
-            moving_creature = world[x1][y1];
-            printf("please enter direction of your movement:\n");
-            scanf(" %c" , &direc);
-            movewithkey2( place , panimal , direc , &i );
-            //system("cls");
-            if(moved == 1){
-                fprintf(log , "moving creature %c in (%d,%d) into %c direction\n" , moving_creature, x1 , y1 , move_direction );
-            }
-            if(sw==1) {
-                printf("gg , wp all -> creature %c won!!!",winner);
-                fprintf( log, "gg , wp all -> creature %c won!!!",winner);
-            }
+                //system("cls");
+                printf("you are at position:(%d,%d) energy(%d)\n",panimal[i],panimal[i+1] , list[place].energy[i/2]);
+                int x1 = panimal[i];
+                int y1 = panimal[i+1];
+                mapprinter(world,size,x1,y1);
+                moving_creature = world[x1][y1];
+                printf("please enter direction of your movement:\n");
+                scanf(" %c" , &direc);
+                movewithkey2( place , panimal , direc , &i , controlanimal);
+                if(moved == 1){
+                    fprintf(log , "moving creature %c in (%d,%d) into %c direction\n" , moving_creature, x1 , y1 , move_direction );
+                }
+                if(sw==1) {
+                    printf("gg , wp all -> creature %c won!!!",winner);
+                    fprintf( log, "gg , wp all -> creature %c won!!!",winner);
+                }
             }
             else{
                 i+=2;
             }
-        }
+        }   
         int j = 0;
         while(j<number && sw ==0){
             movements = 0;
@@ -998,10 +1059,11 @@ int main(){
             int x = noncanimals[j];
             int y = noncanimals[j+1];
             animal = world[x][y];
-            unc_possible_move = list[search(list,animal)].numberm;
-            printf("moving creature %c in position(%d,%d) to (%d,%d) : \n" , world[x][y] ,x , y , unc[0] , unc[1]);
+            int animal_place=search(list,animal);
+            unc_possible_move = list[animal_place].numberm;
+            printf("moving creature %c in position(%d,%d) to (%d,%d) : energy(%d)\n" , world[x][y] ,x , y , unc[0] , unc[1] , list[animal_place].energy[j/2]);
             mapprinter(world,size,x,y);
-            moveunc(j);
+            moveunc(j , animal_place);
             fprintf(log , "moving creature %c in (%d,%d) into %c direction\n" , animal ,x , y , move_direction );
             sleep(2000);
             //system("cls");
@@ -1020,6 +1082,7 @@ int main(){
     
     
     }
+    fclose(log);
     printf("\nPress Any Key To Exit");
     getch();
 
