@@ -19,6 +19,7 @@ int Food_Position[100];
 int Food_energy[100];
 int NumberFood=0;
 int SwforAnimal[100]={0};
+int SwforAnimal2[100]={0};
 char winner;
 int sw = 0;
 char direc;
@@ -132,8 +133,7 @@ void mapreader(FILE *readfile){
     char ch;
     fscanf(readfile,"%s\n",&endofline);
     fscanf(readfile,"%c",&ch);
-    while (ch=='F')
-    {
+    while (ch=='F'){
     fscanf(readfile,"%d ",&Food_energy[k]);
     fscanf(readfile,"%c",&ch);
     fscanf(readfile,"%d",&Food_Position[i]);
@@ -143,7 +143,7 @@ void mapreader(FILE *readfile){
     fscanf(readfile,"%c",&ch);
     k++,i+=2,NumberFood++;
     }
-    for(int i = 0 ; i < NumberFood ; i++){
+    for(int i = 0 ; i < NumberFood*2; i+=2){
         world[Food_Position[i]][Food_Position[i+1]] = 'F';
     }
     fscanf(readfile,"%c%c\n",&ch,&ch);
@@ -196,8 +196,10 @@ void mapreader(FILE *readfile){
 
 void mapprinter(char world[][20],int size,int k,int z){
     printf("\n");
-    for(int i = 0 ; i<NumberFood , Food_energy[i] > 0 ; i++){
-        printf("Food (%d,%d) has %d\n" , Food_Position[2*i] , Food_Position[2*i+1] , Food_energy[i]);
+    for(int i = 0 ; i<NumberFood ; i++){
+        if( Food_energy[i] != 0){
+            printf("Food (%d,%d) has %d\n" , Food_Position[2*i] , Food_Position[2*i+1] , Food_energy[i]);
+        }
     }
     for(int i=0;i<size;i++){
         setTextColor(11,0);
@@ -222,7 +224,7 @@ void swap(char world[][20],int a,int b,int i,int j){
     world[i][j]=temp;
 }
 
-void movewithkey(int animaltype[150] , char direc , int* i){
+void movewithkey(int animaltype[150] , char direc , int *i){
     moved=1;
     if(direc=='a'){
         move_direction = 'a';
@@ -407,7 +409,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i , char 
                 }
             }while (n>j || n*Energy > list[place].energy[(*i)/2]);
 
-            int EFood=SearchFood(animaltype[*i],animaltype[*i+1]-n);
+            int EFood=SearchFood(animaltype[*i],animaltype[*i+1]-n)/2;
             if(world[animaltype[*i]][animaltype[*i+1]-n]=='-'){
                swap(world,animaltype[*i],animaltype[*i+1],animaltype[*i],animaltype[*i+1]-n);
                animaltype[*i+1]-=n; 
@@ -439,7 +441,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i , char 
         move_direction = 'w';
         int j=1;
         while(j<=n){
-            if(world[animaltype[*i]-j][animaltype[*i+1]]=='-' ||world[animaltype[*i]-j][animaltype[*i+1]]=='H'||world[animaltype[*i]-j][animaltype[*i+1]]=='H'){
+            if(world[animaltype[*i]-j][animaltype[*i+1]]=='-' ||world[animaltype[*i]-j][animaltype[*i+1]]=='H'||world[animaltype[*i]-j][animaltype[*i+1]]=='F'){
                 j++;
             }
             else{
@@ -467,7 +469,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i , char 
                 }
             }while (n>j || n*Energy > list[place].energy[(*i)/2]);
 
-            int EFood=SearchFood(animaltype[*i]-n,animaltype[*i+1]);
+            int EFood=SearchFood(animaltype[*i]-n,animaltype[*i+1])/2;
             if(world[animaltype[*i]-n][animaltype[*i+1]]=='-'){
                swap(world,animaltype[*i],animaltype[*i+1],animaltype[*i]-n,animaltype[*i+1]);
                animaltype[*i]-=n; 
@@ -529,7 +531,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i , char 
                 }
             }while (n>j || n*Energy > list[place].energy[(*i)/2]);
 
-            int EFood=SearchFood(animaltype[*i],animaltype[*i+1]+n);
+            int EFood=SearchFood(animaltype[*i],animaltype[*i+1]+n)/2;
             if(world[animaltype[*i]][animaltype[*i+1]+n]=='-'){
                swap(world,animaltype[*i],animaltype[*i+1]+n,animaltype[*i],animaltype[*i+1]);
                animaltype[*i+1]+=n; 
@@ -590,7 +592,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i , char 
                 }
             }while (n>j || n*Energy > list[place].energy[(*i)/2]);
 
-            int EFood=SearchFood(animaltype[*i]+n,animaltype[*i+1]);
+            int EFood=SearchFood(animaltype[*i]+n,animaltype[*i+1])/2;
             if(world[animaltype[*i]+n][animaltype[*i+1]]=='-'){
                 swap(world,animaltype[*i]+n,animaltype[*i+1],animaltype[*i],animaltype[*i+1]);
                 animaltype[*i]+=n;  
@@ -651,7 +653,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i , char 
                 }
             }while (n>j || n*Energy > list[place].energy[*i/2]);
 
-            int EFood=SearchFood(animaltype[*i]-n,animaltype[*i+1]-n);
+            int EFood=SearchFood(animaltype[*i]-n,animaltype[*i+1]-n)/2;
             if(world[animaltype[*i]-n][animaltype[*i+1]-n]=='-' ){
                 swap(world,animaltype[*i]-n,animaltype[*i+1]-n,animaltype[*i],animaltype[*i+1]);
                 animaltype[*i]-=n;
@@ -714,7 +716,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i , char 
                 }
             }while (n>j || n*Energy > list[place].energy[*i/2]);
 
-            int EFood=SearchFood(animaltype[*i]-n,animaltype[*i+1]+n);
+            int EFood=SearchFood(animaltype[*i]-n,animaltype[*i+1]+n)/2;
            if(world[animaltype[*i]-n][animaltype[*i+1]+n]=='-'){
                swap(world,animaltype[*i]-n,animaltype[*i+1]+n,animaltype[*i],animaltype[*i+1]);
                animaltype[*i]-=n;
@@ -777,7 +779,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i , char 
                 }
             }while (n>j || n*Energy > list[place].energy[*i/2]);
 
-            int EFood=SearchFood(animaltype[*i]+n,animaltype[*i+1]+n);
+            int EFood=SearchFood(animaltype[*i]+n,animaltype[*i+1]+n)/2;
             if(world[animaltype[*i]+n][animaltype[*i+1]+n]=='-'){
                 swap(world,animaltype[*i]+n,animaltype[*i+1]+n,animaltype[*i],animaltype[*i+1]);
                 animaltype[*i]+=n;
@@ -811,7 +813,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i , char 
         move_direction = 'z';
         int j=1;
         while(j<=n){
-            if(world[animaltype[*i]+j][animaltype[*i+1]-j]=='-' || world[animaltype[*i]+j][animaltype[*i+1]-j]=='H' || world[animaltype[*i]+j][animaltype[*i+1]-j]=='H'){
+            if(world[animaltype[*i]+j][animaltype[*i+1]-j]=='-' || world[animaltype[*i]+j][animaltype[*i+1]-j]=='H' || world[animaltype[*i]+j][animaltype[*i+1]-j]=='F'){
                 j++;
             }
             else{
@@ -840,7 +842,7 @@ void movewithkey2( int place , int animaltype[150] , char direc , int* i , char 
                 }
             }while (n>j || n*Energy > list[place].energy[*i/2]);
 
-            int EFood=SearchFood(animaltype[*i]+n,animaltype[*i+1]-n);
+            int EFood=SearchFood(animaltype[*i]+n,animaltype[*i+1]-n)/2;
             if(world[animaltype[*i]+n][animaltype[*i+1]-n]=='-'){
                swap(world,animaltype[*i]+n,animaltype[*i+1]-n,animaltype[*i],animaltype[*i+1]);
                animaltype[*i]+=1;
@@ -907,7 +909,7 @@ void moveunc(int j , int animal_place){
     int y = noncanimals[j+1];
     list[animal_place].energy[j/2] -= list[animal_place].movemente;
     if(list[animal_place].energy[(j)/2]<list[animal_place].movemente){
-        SwforAnimal[(j)/2]=1;
+        SwforAnimal2[(j)/2]=1;
         Food_energy[NumberFood]=list[animal_place].energy[(j)/2];
         Food_Position[NumberFood*2]=noncanimals[j];
         Food_Position[NumberFood*2 +1]=noncanimals[j+1];
@@ -1054,23 +1056,28 @@ int main(){
         }   
         int j = 0;
         while(j<number && sw ==0){
-            movements = 0;
-            theNearest(noncanimals[j] , noncanimals[j+1] , 'H');
-            int x = noncanimals[j];
-            int y = noncanimals[j+1];
-            animal = world[x][y];
-            int animal_place=search(list,animal);
-            unc_possible_move = list[animal_place].numberm;
-            printf("moving creature %c in position(%d,%d) to (%d,%d) : energy(%d)\n" , world[x][y] ,x , y , unc[0] , unc[1] , list[animal_place].energy[j/2]);
-            mapprinter(world,size,x,y);
-            moveunc(j , animal_place);
-            fprintf(log , "moving creature %c in (%d,%d) into %c direction\n" , animal ,x , y , move_direction );
-            sleep(2000);
-            //system("cls");
-            j += 2;
-            if(sw==1){
-                printf("gg , wp all -> creature %c won!!!",winner);
-                fprintf( log, "gg , wp all -> creature %c won!!!",winner);
+            if(SwforAnimal2[j/2]==0){
+                movements = 0;
+                theNearest(noncanimals[j] , noncanimals[j+1] , 'H');
+                int x = noncanimals[j];
+                int y = noncanimals[j+1];
+                animal = world[x][y];
+                int animal_place=search(list,animal);
+                unc_possible_move = list[animal_place].numberm;
+                printf("moving creature %c in position(%d,%d) to (%d,%d) : energy(%d)\n" , world[x][y] ,x , y , unc[0] , unc[1] , list[animal_place].energy[j/2]);
+                mapprinter(world,size,x,y);
+                moveunc(j , animal_place);
+                fprintf(log , "moving creature %c in (%d,%d) into %c direction\n" , animal ,x , y , move_direction );
+                sleep(2000);
+                //system("cls");
+                j += 2;
+                if(sw==1){
+                  printf("gg , wp all -> creature %c won!!!",winner);
+                  fprintf( log, "gg , wp all -> creature %c won!!!",winner);
+                }
+            }
+            else{
+                j+=2;
             }
 
         }
