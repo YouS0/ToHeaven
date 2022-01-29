@@ -1037,7 +1037,7 @@ int main(){
                 animal = controlanimal;
 
                 //system("cls");
-                printf(" %d you are at position:(%d,%d) energy(%d)\n",panimal[i],panimal[i+1] , list[place].energy[i/2]);
+                printf("you are at position:(%d,%d) energy(%d)\n",panimal[i],panimal[i+1] , list[place].energy[i/2]);
                 int x1 = panimal[i];
                 int y1 = panimal[i+1];
                 mapprinter(world,size,x1,y1);
