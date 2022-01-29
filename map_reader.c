@@ -904,13 +904,13 @@ void theNearest(int x , int y, char type) {
     
 }
 
-void moveunc(int j , int animal_place){
+void moveunc(int j , int animal_place , int animal_position){
     int x = noncanimals[j];
     int y = noncanimals[j+1];
-    list[animal_place].energy[j/2] -= list[animal_place].movemente;
-    if(list[animal_place].energy[(j)/2]<list[animal_place].movemente){
+    list[animal_place].energy[animal_position/2] -= list[animal_place].movemente;
+    if(list[animal_place].energy[(animal_position)/2]<list[animal_place].movemente){
         SwforAnimal2[(j)/2]=1;
-        Food_energy[NumberFood]=list[animal_place].energy[(j)/2];
+        Food_energy[NumberFood]=list[animal_place].energy[(animal_position)/2];
         Food_Position[NumberFood*2]=noncanimals[j];
         Food_Position[NumberFood*2 +1]=noncanimals[j+1];
         world[noncanimals[j]][noncanimals[j+1]]='F';
@@ -973,7 +973,7 @@ int main(){
     FILE *log;
     log = fopen("game-log.txt" , "wt");
     rewind(log);
-    fprintf(log , "salam dadash");
+    //fprintf(log , "salam dadash");
     FILE *readfile;
     int c[2];
 
@@ -1024,6 +1024,9 @@ int main(){
             }
         }
     }
+    for(int i = 0 ; i<3 ; i++){
+        printf("%d " ,list[i].energy[0]);
+    }
 
     int place=search(list,controlanimal); //getting place of controlled creature in array "list".
 
@@ -1034,7 +1037,7 @@ int main(){
                 animal = controlanimal;
 
                 //system("cls");
-                printf("you are at position:(%d,%d) energy(%d)\n",panimal[i],panimal[i+1] , list[place].energy[i/2]);
+                printf(" %d you are at position:(%d,%d) energy(%d)\n",panimal[i],panimal[i+1] , list[place].energy[i/2]);
                 int x1 = panimal[i];
                 int y1 = panimal[i+1];
                 mapprinter(world,size,x1,y1);
@@ -1057,6 +1060,7 @@ int main(){
         int j = 0;
         while(j<number && sw ==0){
             if(SwforAnimal2[j/2]==0){
+                int animal_position = 0;
                 movements = 0;
                 theNearest(noncanimals[j] , noncanimals[j+1] , 'H');
                 int x = noncanimals[j];
@@ -1064,13 +1068,15 @@ int main(){
                 animal = world[x][y];
                 int animal_place=search(list,animal);
                 unc_possible_move = list[animal_place].numberm;
-                printf("moving creature %c in position(%d,%d) to (%d,%d) : energy(%d)\n" , world[x][y] ,x , y , unc[0] , unc[1] , list[animal_place].energy[j/2]);
+                printf("moving creature %c in position(%d,%d) to (%d,%d) : energy(%d)\n",world[x][y] ,x , y , unc[0] , unc[1] , list[animal_place].energy[animal_position]);
                 mapprinter(world,size,x,y);
-                moveunc(j , animal_place);
+                moveunc(j , animal_place , animal_position);
                 fprintf(log , "moving creature %c in (%d,%d) into %c direction\n" , animal ,x , y , move_direction );
                 sleep(2000);
                 //system("cls");
                 j += 2;
+                animal_position += 2;
+                if(animal_position>=list[animal_place].n) animal_position -= list[animal_place].n;
                 if(sw==1){
                   printf("gg , wp all -> creature %c won!!!",winner);
                   fprintf( log, "gg , wp all -> creature %c won!!!",winner);
