@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <conio.h>
 #include <time.h>
+#include "attack.h"
 
 char lines[100];
 char world[20][20];
@@ -72,7 +73,14 @@ int SearchFood(int i,int j){
     }
     return -1;
 }
-
+int SearchAnimal(int array[],int x,int y,int n){
+    int i=0;
+    while(i<n){
+        if(array[i]==x && array[i+1]==y) return i;
+        i+=2;
+    }
+    return -1;
+}
 int search(struct sanimal a[],int ch){
 
     for(int i=0;i<10;i++){
@@ -123,10 +131,6 @@ void mapreader(FILE *readfile){
     }
     //apply heaven cordinators to final world
     
-    /*while (k!=2){
-        fgets(lines , 100 ,readfile);
-        if(strcmp(lines , endofline)==0)k++;
-    }*/
     char endofline[]="===\n";
     int k = 0;
     int i=0;
@@ -1042,15 +1046,89 @@ int main(){
                 int y1 = panimal[i+1];
                 mapprinter(world,size,x1,y1);
                 moving_creature = world[x1][y1];
-                printf("please enter direction of your movement:\n");
-                scanf(" %c" , &direc);
-                movewithkey2( place , panimal , direc , &i , controlanimal);
-                if(moved == 1){
-                    fprintf(log , "moving creature %c in (%d,%d) into %c direction\n" , moving_creature, x1 , y1 , move_direction );
+                char AnimalAttacked;
+                int Number_Direction=1;
+                char Answer[4]="no";
+
+                if(list[place].energy[i/2]>=3*(list[place].movemente)){
+                    int x,y;//position of attacked animal
+                    while(Number_Direction<8 && strcmp(Answer,"no")==0){
+                        if(Check(world,animal,x1,y1,&Number_Direction,&AnimalAttacked,&x,&y)==1){
+                            do{
+                                printf("Do you want to attack to creature <<%c>> at position (%d,%d)?!(yes/no)\n",AnimalAttacked,x,y);
+                                scanf("%s",&Answer);
+                                if(strcmp(Answer,"no")!=0 && strcmp(Answer,"yes")!=0){
+                                    setTextColor(4,0);
+                                    printf("please answer with yes/no\n");
+                                    setTextColor(11,0);
+                               }
+                            }while(strcmp(Answer,"no")!=0 && strcmp(Answer,"yes")!=0);
+                        }
+                    }
+                    if(strcmp(Answer,"yes")==0){
+                        list[place].energy[i/2]-= 3*(list[place].movemente);
+                        int PlaceAnimal=search(list,AnimalAttacked);//get place of attacked animal in array"list"
+                        int Pattacked_animal=SearchAnimal(noncanimals,x,y,number);//get place of attacked animal in array "noncanimals"
+                        if(list[place].attacke>list[PlaceAnimal].defense){
+                            list[place].energy[i/2] += list[PlaceAnimal].energy[Pattacked_animal/2];
+                            world[x][y]='-';
+                            list[PlaceAnimal].energy[Pattacked_animal/2]=0;
+                            SwforAnimal2[PlaceAnimal/2]=1;
+                        }
+                        else if(list[place].attacke<list[PlaceAnimal].defense){
+                            list[PlaceAnimal].energy[Pattacked_animal/2] += list[place].energy[i/2];
+                            world[x1][y1]='-';
+                            list[place].energy[i/2]=0;
+                            SwforAnimal[i/2]=1;
+                        }
+                        
+                        if(list[place].energy[i/2]<list[place].movemente){
+                            SwforAnimal[i/2]=1;
+                            if(list[place].energy[i/2]>0){
+                                world[x1][y1]='F';
+                                Food_energy[NumberFood]=list[place].energy[i/2];
+                                Food_Position[NumberFood*2]=x1;
+                                Food_Position[NumberFood*2+1]=y1;
+                            }
+                        }
+                        i+=2;
+                    }
+                for(int k=0;k<8;k++){
+                    SwforCheck[k]=0;
                 }
-                if(sw==1) {
+                }
+                if(strcmp(Answer,"no")==0){
+                    char answer[4];
+                    do{
+                        printf("Do you want to donate %d of your energy to another animal?!\n",list[place].movemente);
+                        scanf("%s",&answer);
+                    }while(strcmp(answer,"yes")!=0 && strcmp(answer,"no")!=0);
+                    if(strcmp(answer,"yes")==0){
+                        int x,y;
+                        int placeanimal;
+                        do{
+                            printf("please enter position of animal:\n");
+                            scanf("%d %d",&x,&y);
+                            placeanimal=SearchAnimal(panimal,x,y,n);
+                            if(placeanimal==-1){
+                                setTextColor(4,0);
+                                printf("this position isn't available!!!\n");
+                                setTextColor(11,0);
+                            }
+                        }while(placeanimal==-1);
+                        list[place].energy[i/2]-=list[place].movemente;
+                        list[place].energy[placeanimal/2]+=list[place].movemente;
+                    }
+                    printf("please enter direction of your movement:\n");
+                    scanf(" %c" , &direc);
+                    movewithkey2( place , panimal , direc , &i , controlanimal);
+                    if(moved == 1){
+                    fprintf(log , "moving creature %c in (%d,%d) into %c direction\n" , moving_creature, x1 , y1 , move_direction );
+                    }
+                    if(sw==1) {
                     printf("gg , wp all -> creature %c won!!!",winner);
                     fprintf( log, "gg , wp all -> creature %c won!!!",winner);
+                    }
                 }
             }
             else{
