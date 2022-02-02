@@ -11,7 +11,7 @@
 #include "variables.h"
 #include "main-struct.h"
 #include "map-funcs.h"
-int Swforproduct[8]={0};
+int Swforproduct[9]={0};
 
 
 int randint(int lower , int upper){
@@ -63,6 +63,9 @@ int production(struct sanimal *animal){
     int number_dir = 1;
     int x , y;
     int num;
+    for(int i = 0 ; i<8 ; i++){
+        Swforproduct[i] = 0;
+    }
     while(number_dir <= 8){
         if(Check_Product(world , *animal , &number_dir ,&x , &y  ) == 1){
             if(list[serach_for_animal(list , x , y)].energy >= list[serach_for_animal(list , x , y)].productione){
@@ -78,7 +81,7 @@ int production(struct sanimal *animal){
                     world[nearest[0]][nearest[1]] = animal->gender;
                     child.x = nearest[0];
                     child.y = nearest[1];
-                    child.gender = search_for_initialE(animal->gender);
+                    child.energy = search_for_initialE(animal->gender);
                     generate_chile(&child);
                     number_of_all ++;
                     list[number_of_all - 1] = child; 
@@ -87,9 +90,6 @@ int production(struct sanimal *animal){
                 }
             }
         }
-    }
-    for(int i = 0 ; i<8 ; i++){
-        Swforproduct[i] = 0;
     }
     return 0;
 }

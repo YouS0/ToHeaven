@@ -1,13 +1,13 @@
 #include "variables.h"
 #include "main-struct.h"
-int Swforcheck[8]={0};
+int Swforcheck[9]={0};
 
 
 int Check_for_attack(char world[][20],struct sanimal animal,int *p,int *x2,int *y2){
     int k = 0;
     for(int i = animal.x -1 ; i<animal.x +2 ; i++){
         for(int j = animal.y-1 ; j <animal.y +2 ; j++){
-            if(Swforcheck[k]==0 && world[i][j] != animal.gender &&  world[i][j] != 'H' && world[i][j] != 'F' && world[i][j] != '-' && world[i][j] != '#' && !(animal.x==i && animal.y==j)){
+            if(Swforcheck[k]==0 && world[i][j] != animal.gender &&  world[i][j] != 'H' && world[i][j] != 'F' && world[i][j] != '-' && world[i][j] != '#' && !(animal.x==i && animal.y==j) && i>=0 && j>=0){
                 Swforcheck[k] = 1;
                 *p += 1;
                 *x2 = i;
@@ -15,7 +15,7 @@ int Check_for_attack(char world[][20],struct sanimal animal,int *p,int *x2,int *
                 return 1;
             }
             else{
-                Swforproduct[k] = 1;
+                Swforcheck[k] = 1;
                 *p += 1;
             }
             k++;
@@ -31,6 +31,9 @@ int attack(struct sanimal *animal){
     int number_dir = 1;
     int x , y;
     int num;
+    for(int i = 0 ; i<8 ; i++){
+        Swforcheck[i] = 0;
+    }
 
     while(number_dir <= 8){
         if(Check_for_attack(world , *animal , &number_dir ,&x , &y) == 1){
