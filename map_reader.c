@@ -63,7 +63,7 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
     int y=animal->y;
     if(direction=='a'){
         for(int i = 1 ; i <= number_of_direction ; i++){
-            if(world[x][y-i] == 'H') sw = 1;
+            if(world[x][y-i] == 'H') sw = 1 , world[x][y] = '-';
             if (world[x][y-i] != 'H' && world[x][y-i] != 'F' && world[x][y-i] != '-'){
                 return -1;
             }
@@ -84,7 +84,7 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
 
     else if(direction=='w'){
         for(int i = 1 ; i <= number_of_direction ; i++){
-            if(world[x-i][y] == 'H') sw = 1;
+            if(world[x-i][y] == 'H') sw = 1, world[x][y] = '-';
             if (world[x-i][y] != 'H' && world[x-i][y] != 'F' && world[x-i][y] != '-'){
                 return -1;
             }
@@ -104,7 +104,7 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
 
     else if(direction=='d'){
         for(int i = 1 ; i <= number_of_direction ; i++){
-            if(world[x][y+i] == 'H') sw = 1;
+            if(world[x][y+i] == 'H') sw = 1 , world[x][y] = '-';
             if (world[x][y+i] != 'H' && world[x][y+i] != 'F' && world[x][y+i] != '-'){
                 return -1;
             }
@@ -124,7 +124,7 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
 
     else if(direction=='x'){
         for(int i = 1 ; i <= number_of_direction ; i++){
-            if(world[x+i][y] == 'H') sw = 1;
+            if(world[x+i][y] == 'H') sw = 1, world[x][y] = '-';
             if (world[x+i][y] != 'H' && world[x+i][y] != 'F' && world[x+i][y] != '-'){
                 return -1;
             
@@ -145,7 +145,7 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
 
     else if(direction=='z'){
         for(int i = 1 ; i <= number_of_direction ; i++){
-            if(world[x+i][y-i] == 'H') sw = 1;
+            if(world[x+i][y-i] == 'H') sw = 1, world[x][y] = '-';
             if (world[x+i][y-i] != 'H' && world[x+i][y-i] != 'F' && world[x+i][y-i] != '-'){
                 return -1;
             }
@@ -166,7 +166,7 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
 
     else if(direction=='c'){
         for(int i = 1 ; i <= number_of_direction ; i++){
-            if(world[x+i][y+i] == 'H') sw = 1;
+            if(world[x+i][y+i] == 'H') sw = 1, world[x][y] = '-';
             if (world[x+i][y+i] != 'H' && world[x+i][y+i] != 'F' && world[x+i][y+i] != '-'){
                 return -1;
             }
@@ -187,7 +187,7 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
 
     else if(direction=='q'){
         for(int i = 1 ; i <= number_of_direction ; i++){
-            if(world[x-i][y-i] == 'H') sw = 1;
+            if(world[x-i][y-i] == 'H') sw = 1, world[x][y] = '-';
             if (world[x-i][y-i] != 'H' && world[x-i][y-i] != 'F' && world[x-i][y-i] != '-'){
                 return -1;
             }
@@ -208,7 +208,7 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
 
     else if(direction=='e'){
         for(int i = 1 ; i <= number_of_direction ; i++){
-            if(world[x-i][y+i] == 'H') sw = 1;
+            if(world[x-i][y+i] == 'H') sw = 1, world[x][y] = '-';
             if (world[x-i][y+i] != 'H' && world[x-i][y+i] != 'F' && world[x-i][y+i] != '-'){
                 return -1;
             }
@@ -226,48 +226,72 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
             animal->y+=number_of_direction;
         }
     }
-    if(sw == 1) winner = animal->gender;
+    if(sw == 1) winner = animal->gender , mapprinter(world , 20 , *animal);
 
     return 1;
 }
 
-int move_all_directions(struct sanimal *animal,char dr1,char dr2,char dr3,char dr4,char dr5,char dr6,char dr7,char dr8){
+int move_all_directions(struct sanimal *animal,char dr1,char dr2,char dr3,char dr4,char dr5,char dr6,char dr7,char dr8 , char *move_dir){
     int restlt = 0;
     restlt = movethiky(animal , dr1 , 1);
-    if (restlt == 1) return 1;
+    if (restlt == 1) {
+        *move_dir = dr1;
+        return 1 ;
+    }
     restlt = movethiky(animal , dr2 , 1);
-    if (restlt == 1) return -1;
+    if (restlt == 1)  {
+        *move_dir = dr2;
+        return -1 ;
+    }
     restlt = movethiky(animal , dr3 , 1);
-    if (restlt == 1) return -1;
+    if (restlt == 1) {
+        *move_dir = dr3;
+        return -1 ;
+    }
     restlt = movethiky(animal , dr4 , 1);
-    if (restlt == 1) return -1;
+    if (restlt == 1){
+        *move_dir = dr4;
+        return -1 ;
+    }
     restlt = movethiky(animal , dr5 , 1);
-    if (restlt == 1) return -1;
+    if (restlt == 1) {
+        *move_dir = dr5;
+        return -1 ;
+    }
     restlt = movethiky(animal , dr6 , 1);
-    if (restlt == 1) return -1;
+    if (restlt == 1) {
+        *move_dir = dr6;
+        return -1 ;
+    }
     restlt = movethiky(animal , dr7 , 1);
-    if (restlt == 1) return -1;
+    if (restlt == 1) {
+        *move_dir = dr7;
+        return -1 ;
+    }
     restlt = movethiky(animal , dr8 , 1);
-    if (restlt == 1) return -1;
+    if (restlt == 1) {
+        *move_dir = dr8;
+        return -1 ;
+    }
 }
 
 
-int moveUnc(struct sanimal *animal) {
+int moveUnc(struct sanimal *animal , char *move_dir) {
     int result = 0;
     theNearest(animal->x , animal->y , 'H');
     if(nearest[0]>animal->x){
-        if(nearest[1]>animal->y) result = move_all_directions(animal , 'c' , 'd' , 'x' , 'z' , 'e' , 'a' , 'w' , 'q');
-        else if(nearest[1]<animal->y) result = move_all_directions(animal , 'z' , 'a' , 'x' , 'c' , 'q' , 'w' , 'd' , 'e');
-        else if(nearest[1] == animal->y) result = move_all_directions(animal , 'x' , 'c' , 'z' , 'a' , 'd' , 'w' , 'e' , 'q');
+        if(nearest[1]>animal->y) result = move_all_directions(animal , 'c' , 'd' , 'x' , 'z' , 'e' , 'a' , 'w' , 'q',move_dir);
+        else if(nearest[1]<animal->y) result = move_all_directions(animal , 'z' , 'a' , 'x' , 'c' , 'q' , 'w' , 'd' , 'e',move_dir);
+        else if(nearest[1] == animal->y) result = move_all_directions(animal , 'x' , 'c' , 'z' , 'a' , 'd' , 'w' , 'e' , 'q',move_dir);
     }
     else if(nearest[0]<animal->x){
-        if(nearest[1]>animal->y) result = move_all_directions(animal , 'e' , 'd' , 'w' , 'c' , 'x' , 'a' , 'q' , 'z');
-        else if(nearest[1]<animal->y) result = move_all_directions(animal , 'q' , 'w' , 'a' , 'z' , 'x' , 'e' , 'd' , 'c');
-        else if(nearest[1] == animal->y) result = move_all_directions(animal , 'w' , 'e' , 'q' , 'a' , 'd' , 'x' , 'c' , 'z');
+        if(nearest[1]>animal->y) result = move_all_directions(animal , 'e' , 'd' , 'w' , 'c' , 'x' , 'a' , 'q' , 'z',move_dir);
+        else if(nearest[1]<animal->y) result = move_all_directions(animal , 'q' , 'w' , 'a' , 'z' , 'x' , 'e' , 'd' , 'c',move_dir);
+        else if(nearest[1] == animal->y) result = move_all_directions(animal , 'w' , 'e' , 'q' , 'a' , 'd' , 'x' , 'c' , 'z',move_dir);
     }
     else if(nearest[0]== animal->x){
-        if(nearest[1]>animal->y) result = move_all_directions(animal , 'd' , 'e' , 'c' , 'x' , 'w' , 'a' , 'q' , 'z');
-        else if(nearest[1]<animal->y) result = move_all_directions(animal , 'a' , 'q' , 'z' , 'x' , 'w' , 'd' , 'e' , 'c');
+        if(nearest[1]>animal->y) result = move_all_directions(animal , 'd' , 'e' , 'c' , 'x' , 'w' , 'a' , 'q' , 'z',move_dir);
+        else if(nearest[1]<animal->y) result = move_all_directions(animal , 'a' , 'q' , 'z' , 'x' , 'w' , 'd' , 'e' , 'c',move_dir);
     }
     return result;
 }
@@ -403,7 +427,8 @@ void mapreader(FILE *readfile){
 }
 
 int main(){
-
+    char direc;
+    char move_dir;
     // FILE *log;
     // log = fopen("game-log.txt" , "wt");
     FILE *readfile;
@@ -427,7 +452,7 @@ int main(){
     int result;
     sw = 0;
     int j;
-    char Activity[7];
+    char Activity[10];
     int production_result;
     while(sw==0){
         int i = 0;
@@ -436,25 +461,76 @@ int main(){
 
             if(list[i].gender == controlanimal){
                 if(list[i].energy>0){
-                    printf("You Are In Position(%d,%d) with %d energy\n " , list[i].x , list[i].y,list[i].energy);
+                    int productx , producty;
+                    printf("You Are In Position(%d,%d) , Energy : %d\n" , list[i].x , list[i].y,list[i].energy);
                     do{
-                        printf("which activity do you want?!(move\\donat\\fight)\n");
+                        printf("which activity do you want?!(move\\donat\\fight\\reproduct)\n");
                         scanf("%s",Activity);
-                        if(strcmp(Activity,"donate")!=0 && strcmp(Activity,"move")!=0 && strcmp(Activity,"fight")!=0){
+                        if(strcmp(Activity,"donate")!=0 && strcmp(Activity,"move")!=0 && strcmp(Activity,"fight")!=0 && strcmp(Activity , "reproduct")!=0){
                             printf("please answer with (move\\fight\\donate\n");
                         }
-                    }while(strcmp(Activity,"donate")!=0 && strcmp(Activity,"move")!=0 && strcmp(Activity,"fight")!=0);
+                    }while(strcmp(Activity,"donate")!=0 && strcmp(Activity,"move")!=0 && strcmp(Activity,"fight")!=0 && strcmp(Activity , "reproduct")!=0);
+
+                    if(strcmp(Activity , "reproduct") == 0){
+                        if(list[i].energy >= list[i].productione){
+                            printf("Please enter the cordination of your partner in reproduct : ");
+                            scanf("%d %d" , &productx , &producty);
+                            int dx = productx > list[i].x ? productx - list[i].x : list[i].x - productx;
+                            int dy = producty > list[i].y ? productx - list[i].y : list[i].y - producty;
+                            if(dx>1 || dy>1){
+                                printf("Too Far to reproduct !\n");
+                            }
+                            int partner_position = serach_for_animal(list , productx , producty);
+                            if(list[partner_position].energy >= list[partner_position].productione && dx<=1 && dy<=1){
+                                list[i].energy -= list[i].productione;
+                                list[partner_position].energy -= list[partner_position].productione;
+                                struct sanimal child;
+                                child.gender = list[i].gender;
+                                theNearest(list[i].x , list[i].y , '-');
+                                child.x = nearest[0];
+                                child.y = nearest[1];
+                                world[child.x][child.y] = child.gender;
+                                child.energy = search_for_initialE(list[i].gender);
+                                generate_chile(&child);
+                                number_of_all ++;
+                                list[number_of_all - 1] = child;
+                                i++;
+                                printf("Reproduction succesfull and placed in (%d , %d)" , child.x , child.y);
+                                
+                            }
+                            else if(dx<=1 && dy<=1){
+                                printf("ERROR : Selected partner has not enough energy !\n");
+                            }
+                        }
+                        else{
+                            printf("ERROR : This creature has not enough energy for reproduct! Please Select another activity\n");
+                        }
+                        if(list[i].energy<list[i].movemente){
+                            world[list[i].x][list[i].y]='F';
+                            Food_energy[NumberFood]=list[i].energy;
+                            Food_Position[NumberFood*2]=list[i].x;
+                            Food_Position[NumberFood*2+1]=list[i].y;
+                            world[list[i].x][list[i].y] = 'F';
+                            NumberFood++;
+                            list[i].energy=0;
+                        }
+                    }
+
+
+
+
+
 
 
                     if(strcmp(Activity,"move")==0){
                         int number_movements;
                         do{
-                            printf("please eneter your dierction:\n");
+                            printf("please eneter your dierction: ");
                             scanf(" %c",&direc);
-                            printf("please enter number of direction:\n");
+                            printf("please enter number of direction: ");
                             scanf("%d",&number_movements);
                             while(number_movements>list[i].numberm || list[i].energy<number_movements*list[i].movemente){
-                                printf("please decrease number of your movements\n");
+                                printf("please decrease number of your movements: ");
                                 scanf("%d",&number_movements);
                             }
                             result = movethiky(&list[i] , direc , number_movements);
@@ -467,6 +543,7 @@ int main(){
                             Food_energy[NumberFood]=list[i].energy;
                             Food_Position[NumberFood*2]=list[i].x;
                             Food_Position[NumberFood*2+1]=list[i].y;
+                            world[list[i].x][list[i].y] = 'F';
                             NumberFood++;
                             list[i].energy=0;
                         }
@@ -493,17 +570,18 @@ int main(){
                             Food_energy[NumberFood]=list[i].energy;
                             Food_Position[NumberFood*2]=list[i].x;
                             Food_Position[NumberFood*2+1]=list[i].y;
+                            world[list[i].x][list[i].y] = 'F';
                             NumberFood++;
                             list[i].energy=0;
                         }
                         i++;
                     }
-                    else {
+                    else if(strcmp(Activity , "fight") == 0) {
                         char answer[4];
                         int x,y;
                         int j;
                        if(list[i].energy >= 3*list[i].movemente){
-                            printf("please enter position of animal that you want to attack to it:\n");
+                            printf("please enter position of animal that you want to attack to :\n");
                             do{
                                 scanf("%d %d",&x,&y);
                                 j=serach_for_animal(list,x,y);
@@ -516,7 +594,7 @@ int main(){
                             }while(j==-1 || list[j].gender==controlanimal);
                             if(list[i].attacke > list[j].defense){
                                 setTextColor(14,0);
-                                printf("creature <<%c>> won in attack :)\n ",controlanimal);
+                                printf("creature <<%c>> won the fight :)\n ",controlanimal);
                                 setTextColor(11,0);
                                 list[i].energy += list[j].energy;
                                 list[j].energy=0;
@@ -524,7 +602,7 @@ int main(){
                             }
                             else if(list[i].attacke < list[j].defense){
                                 setTextColor(14,0);
-                                printf("creature <<%c>> won in attack :(\n",list[j].gender);
+                                printf("creature <<%c>> won the fight :(\n",list[j].gender);
                                 setTextColor(11,0);
                                 list[j].energy += list[i].energy;
                                 list[i].energy=0;
@@ -534,6 +612,7 @@ int main(){
                                 Food_energy[NumberFood]=list[i].energy;
                                 Food_Position[NumberFood*2]=list[i].x;
                                 Food_Position[NumberFood*2+1]=list[i].y;
+                                world[list[i].x][list[i].y] = 'F';
                                 NumberFood++;
                                 list[i].energy=0;
                             }
@@ -546,29 +625,45 @@ int main(){
                 }    
             }
             else{
-                int donate_result = -1;
-                donate_result = donate(&list[i]);
-                int attack_result = -1;
-                production_result = 0;
-                if(list[i].energy > 3*list[i].movemente && donate_result == -1){
-                    attack_result =  attack(&list[i]);
-                    
-                }
-                if(list[i].energy > list[i].productione && attack_result == -1 && donate_result == -1) production_result = production(&list[i]);
-                if (production_result!=1 && attack_result == -1 && donate_result == -1){
+                if(list[i].energy>0){
+                    int donate_result = -1;
                     theNearest(list[i].x , list[i].y , 'H');
-                    sleep(1000);
-                    printf("Moving creature %c in (%d,%d) to (%d,%d)" , list[i].gender , list[i].x , list[i].y , nearest[0] , nearest[1]);
-                    result = moveUnc(&list[i]);
+                    int dx = nearest[0] > list[i].x ? nearest[0] - list[i].x : list[i].x - nearest[0];
+                    int dy = nearest[1] > list[i].y ? nearest[1] - list[i].y : list[i].y - nearest[1];
+                    if(dx>list[i].numberm || dy>list[i].numberm)donate_result = donate(&list[i]);
+                    int attack_result = -1;
+                    production_result = 0;
+                    if((dx>list[i].numberm || dy>list[i].numberm) &&list[i].energy > 3*list[i].movemente && donate_result == -1){
+                        attack_result =  attack(&list[i]);
+
+                    }
+                    if((dx>list[i].numberm || dy>list[i].numberm) && list[i].energy > list[i].productione && attack_result == -1 && donate_result == -1) production_result = production(&list[i]);
+                    if (production_result!=1 && attack_result == -1 && donate_result == -1){
+                        sleep(1000);
+                        printf("Moving creature %c in (%d,%d) to (%d,%d)" , list[i].gender , list[i].x , list[i].y , nearest[0] , nearest[1]);
+                        result = moveUnc(&list[i] , &move_dir);
+                        int movement_number = 1;
+                        while(result == 1 && list[i].energy >= list[i].movemente && movement_number<= list[i].numberm){    
+                            result = movethiky(&list[i] , move_dir , 1);
+                            movement_number ++;
+                        }
+                    }
                 }
-                
+                else{
+                    Food_energy[NumberFood]=list[i].energy;
+                    Food_Position[NumberFood*2]=list[i].x;
+                    Food_Position[NumberFood*2+1]=list[i].y;
+                    NumberFood++;
+                    world[list[i].x][list[i].y] = 'F';
+                    list[i].energy=0;
+                }
                 i++;
             }
     
         }
     }
     if(sw == 1) {
-        printf("\nG , Wp all. Creture %c won !!\nPress Any key to exit" , winner);
+        printf("\nGG , Wp all. Creture %c won !!\nPress Any key to exit : " , winner);
         getch();
     }
 
