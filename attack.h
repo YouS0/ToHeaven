@@ -1,126 +1,52 @@
-int SwforCheck[8]={0};
+#include "variables.h"
+#include "main-struct.h"
+int Swforcheck[8]={0};
 
-int Check(char world[][20],char animal,int x1,int y1,int *i,char *ch,int *x2,int *y2){
 
-    if(SwforCheck[0]==0){
-
-        if(world[x1][y1+1]!=animal && world[x1][y1+1]!='-' && world[x1][y1+1]!='#' && world[x1][y1+1]!='F' && world[x1][y1+1]!='H'){
-            SwforCheck[0]=1;
-            *i+=1;
-            *ch=world[x1][y1+1];
-            *x2=x1;
-            *y2=y1+1;
-            return 1;
-        }
-        else{
-            SwforCheck[0]=1;
-            *i+=1;
-        }
-    }
-    if(SwforCheck[1]==0){
-
-        if(world[x1-1][y1+1]!=animal && world[x1-1][y1+1]!='-' && world[x1-1][y1+1]!='#' && world[x1-1][y1+1]!='F' && world[x1-1][y1+1]!='H'){
-            SwforCheck[1]=1;
-            *i+=1;
-            *ch=world[x1-1][y1+1];
-            *x2=x1-1;
-            *y2=y1+1;
-            return 1;
-        }
-        else{
-            SwforCheck[1]=1;
-            *i+=1;
-        }
-    }
-    if(SwforCheck[2]==0){
-
-        if(world[x1-1][y1]!=animal && world[x1-1][y1]!='-' && world[x1-1][y1]!='#' && world[x1-1][y1]!='F' && world[x1-1][y1]!='H'){
-            SwforCheck[2]=1;
-            *i+=1;
-            *ch=world[x1-1][y1];
-            *x2=x1-1;
-            *y2=y1;
-            return 1;
-        }
-        else{
-            SwforCheck[2]=1;
-            *i+=1;
-        }
-    }
-    if(SwforCheck[3]==0){
-
-        if(world[x1-1][y1-1]!=animal && world[x1-1][y1-1]!='-' && world[x1-1][y1-1]!='#' && world[x1-1][y1-1]!='F' && world[x1-1][y1-1]!='H'){
-            SwforCheck[3]=1;
-            *i+=1;
-            *ch=world[x1-1][y1-1];
-            *x2=x1-1;
-            *y2=y1-1;
-            return 1;
-        }
-        else{
-            SwforCheck[3]=1;
-            *i+=1;
-        }
-    }
-    if(SwforCheck[4]==0){
-
-        if(world[x1][y1-1]!=animal && world[x1][y1-1]!='-' && world[x1][y1-1]!='#' && world[x1][y1-1]!='F' && world[x1][y1-1]!='H'){
-            SwforCheck[4]=1;
-            *i+=1;
-            *ch=world[x1][y1-1];
-            *x2=x1;
-            *y2=y1-1;
-            return 1;
-        }
-        else{
-            SwforCheck[4]=1;
-            *i+=1;
-        }
-    }
-    if(SwforCheck[5]==0){
-
-        if(world[x1+1][y1-1]!=animal && world[x1+1][y1-1]!='-' && world[x1+1][y1-1]!='#' && world[x1+1][y1-1]!='F' && world[x1+1][y1-1]!='H'){
-            SwforCheck[5]=1;
-            *i+=1;
-            *ch=world[x1+1][y1-1];
-            *x2=x1+1;
-            *y2=y1-1;
-            return 1;
-        }
-        else{
-            SwforCheck[5]=1;
-            *i+=1;
-        }
-    }
-    if(SwforCheck[6]==0){
-
-        if(world[x1+1][y1]!=animal && world[x1+1][y1]!='-' && world[x1+1][y1]!='#' && world[x1+1][y1]!='F' && world[x1+1][y1]!='H'){
-            SwforCheck[6]=1;
-            *i+=1;
-            *ch=world[x1+1][y1];
-            *x2=x1+1;
-            *y2=y1;
-            return 1;
-        }
-        else{
-            SwforCheck[6]=1;
-            *i+=1;
-        }
-    }
-    if(SwforCheck[7]==0){
-
-        if(world[x1+1][y1+1]!=animal && world[x1+1][y1+1]!='-' && world[x1+1][y1+1]!='#' && world[x1+1][y1+1]!='F' && world[x1+1][y1+1]!='H'){
-            SwforCheck[7]=1;
-            *i+=1;
-            *ch=world[x1+1][y1+1];
-            *x2=x1+1;
-            *y2=y1+1;
-            return 1;
-        }
-        else{
-            SwforCheck[7]=1;
-            *i+=1;
-        }
+int Check_for_attack(char world[][20],struct sanimal animal,int *p,int *x2,int *y2){
+    int k = 0;
+    for(int i = animal.x -1 ; i<animal.x +2 ; i++){
+        for(int j = animal.y-1 ; j <animal.y +2 ; j++){
+            if(Swforcheck[k]==0 && world[i][j] != animal.gender &&  world[i][j] != 'H' && world[i][j] != 'F' && world[i][j] != '-' && world[i][j] != '#' && !(animal.x==i && animal.y==j)){
+                Swforcheck[k] = 1;
+                *p += 1;
+                *x2 = i;
+                *y2 = j;
+                return 1;
+            }
+            else{
+                Swforproduct[k] = 1;
+                *p += 1;
+            }
+            k++;
+        } 
     }
     return 0;
+
+}
+
+
+
+int attack(struct sanimal *animal){
+    int number_dir = 1;
+    int x , y;
+    int num;
+
+    while(number_dir <= 8){
+        if(Check_for_attack(world , *animal , &number_dir ,&x , &y) == 1){
+            if(list[serach_for_animal(list , x , y)].defense < animal->attacke ){
+                if(list[serach_for_animal(list , x ,y)].energy >  3 *animal->movemente){
+                    animal->energy += list[serach_for_animal(list , x ,y)].energy;
+                    list[serach_for_animal(list , x ,y)].energy = 0;
+                    world[list[serach_for_animal(list , x ,y)].x][list[serach_for_animal(list , x ,y)].y] = '-';
+                    printf("attacked to (%d , %d)" , list[serach_for_animal(list , x ,y)].x , list[serach_for_animal(list , x ,y)].y);
+                    return 1;
+                }
+            }
+        }
+    
+    }
+    return -1;
+
+
 }
