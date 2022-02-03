@@ -446,12 +446,13 @@ int main(){
     char direc;
     char move_dir;
     FILE *readfile;
-    FILE *log=fopen("C:\\Users\\MOHAMMAD\\Desktop\\Team_7_Final_Project\\game-log.txt" , "wt");
+    FILE *log=fopen("game-log.txt" , "wt");
     int c[2];
 
-    readfile = fopen("C:\\Users\\MOHAMMAD\\Desktop\\Team_7_Final_Project\\map-phase1.txt" , "rt" );
+    readfile = fopen("map-phase1.txt" , "rt" );
     if(!readfile || !log) {
         printf("File did not open!");
+        getch();
         exit(-1);
     }
     setTextColor(11 , 0);
