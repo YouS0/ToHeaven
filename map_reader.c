@@ -484,11 +484,11 @@ int main(){
                     int productx , producty;
                     printf("You Are In Position(%d,%d) , Energy : %d\n" , list[i].x , list[i].y,list[i].energy);
                     do{
-                        printf("which activity do you want?!(move\\donat\\fight\\reproduct)\n");
+                        printf("which activity do you want?!(move\\donate\\fight\\reproduct)\n");
                         scanf("%s",Activity);
                         if(strcmp(Activity,"donate")!=0 && strcmp(Activity,"move")!=0 && strcmp(Activity,"fight")!=0 && strcmp(Activity , "reproduct")!=0){
                             setTextColor(4,0);
-                            printf("ERROR:please answer with (move\\donat\\fight\\reproduct)\n");
+                            printf("ERROR:please answer with (move\\donate\\fight\\reproduct)\n");
                             setTextColor(11,0);
                         }
                     }while(strcmp(Activity,"donate")!=0 && strcmp(Activity,"move")!=0 && strcmp(Activity,"fight")!=0 && strcmp(Activity , "reproduct")!=0);
@@ -584,36 +584,54 @@ int main(){
                         i++;
                     }
                     else if(strcmp(Activity,"donate")==0){
-                        int x,y;
-                        int j;
-                        do{
-                            printf("please enetr position of animal that you want to donat to it:\n");
-                            scanf("%d %d",&x,&y);
-                            j = serach_for_animal(list,x,y);
-                            if(list[j].gender!=controlanimal){
-                                setTextColor(4,0);
-                                printf("ERROR:you can't donate to this creature!!\n");
-                                setTextColor(11,0);
-                            }
-                            if(j==-1){
-                                setTextColor(4,0);
-                                printf("ERROR:this animal isn't available!!!\n");
-                                setTextColor(11,0);
-                            }
-                        }while(j==-1 || list[j].gender!=controlanimal);
-                        list[i].energy -= list[i].movemente;
-                        list[j].energy += list[i].movemente;
-                        fprintf(log , "Donate %d Energy : (%d,%d) to (%d,%d)\n" , list[i].movemente , list[i].x , list[i].y , list[i].x , list[i].y);
-                        if(list[i].energy<list[i].movemente){
-                            world[list[i].x][list[i].y]='F';
-                            Food_energy[NumberFood]=list[i].energy;
-                            Food_Position[NumberFood*2]=list[i].x;
-                            Food_Position[NumberFood*2+1]=list[i].y;
-                            world[list[i].x][list[i].y] = 'F';
-                            NumberFood++;
-                            list[i].energy=0;
+                        int Number_same_animal=0;
+                        for(int k=0;k<number_of_all;k++){
+                            if(list[k].gender==controlanimal) Number_same_animal++;
                         }
-                        i++;
+                        if(Number_same_animal>1){
+                            int x,y;
+                            int j;
+                            do{
+                                printf("please enetr position of animal that you want to donat to it:\n");
+                                scanf("%d %d",&x,&y);
+                                while(list[i].x==x && list[i].y==y){
+                                    setTextColor(4,0);
+                                    printf("ERROR:please enter posotion of another animal!!\n");
+                                    setTextColor(11,0);
+                                    scanf("%d %d",&x,&y);
+                                }
+                                j = serach_for_animal(list,x,y);
+                                if(list[j].gender!=controlanimal){
+                                    setTextColor(4,0);
+                                    printf("ERROR:you can't donate to this creature!!\n");
+                                    setTextColor(11,0);
+                                }
+                                if(j==-1){
+                                    setTextColor(4,0);
+                                    printf("ERROR:this animal isn't available!!!\n");
+                                    setTextColor(11,0);
+                                }
+                            }while(j==-1 || list[j].gender!=controlanimal);
+                            list[i].energy -= list[i].movemente;
+                            list[j].energy += list[i].movemente;
+                            fprintf(log , "Donate %d Energy : (%d,%d) to (%d,%d)\n" , list[i].movemente , list[i].x , list[i].y , list[i].x , list[i].y);
+                            if(list[i].energy<list[i].movemente){
+                                world[list[i].x][list[i].y]='F';
+                                Food_energy[NumberFood]=list[i].energy;
+                                Food_Position[NumberFood*2]=list[i].x;
+                                Food_Position[NumberFood*2+1]=list[i].y;
+                                world[list[i].x][list[i].y] = 'F';
+                                NumberFood++;
+                                list[i].energy=0;
+                            }
+                            i++;
+                        }
+                        else{
+                            setTextColor(4,0);
+                            printf("ERROR:there is no animal to donate to it!!\n");
+                            setTextColor(11,0);
+                        }    
+                        
                     }
                     else if(strcmp(Activity , "fight") == 0) {
                         char answer[4];
