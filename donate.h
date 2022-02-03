@@ -12,8 +12,8 @@ int search_for_donate(struct sanimal list[] , struct sanimal animal){
             position = i;
             return position;
         }
-        return -1;
     }
+    return -1;
 
 
 }
