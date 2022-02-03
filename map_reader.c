@@ -10,6 +10,11 @@
 #include "attack.h"
 #include "donate.h"
 //#include "move.h"
+void cls(void)
+{
+    system("cls||clear");
+    return;
+}
 void setTextColor(int textColor, int backColor) {
     HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     int colorAttribute = backColor << 4 | textColor;
@@ -432,15 +437,25 @@ void mapreader(FILE *readfile){
 int main(){
     char direc;
     char move_dir;
-    // FILE *log;
-    // log = fopen("game-log.txt" , "wt");
     FILE *readfile;
+    FILE *log=fopen("game-log.txt" , "wt");
     int c[2];
 
-    readfile = fopen("C:\\Users\\MOHAMMAD\\Desktop\\Team_7_Final_Project\\map-phase1.txt" , "rt" );
-    //if(!readfile || !log) printf("File did not open!");
+    readfile = fopen("map-phase1.txt" , "rt" );
+    if(!readfile || !log) {
+        printf("File did not open!");
+        exit(-1);
+    }
     setTextColor(11 , 0);
     mapreader(readfile);
+    fprintf(log , "%d\n" , size);
+    for(int i = 0 ; i<size ; i++){
+        fprintf(log , "|");
+        for(int j = 0 ; j<size ; j++){
+            fprintf(log , "%c|" , world[i][j]);
+        }
+        fprintf(log , "\n");
+    }
     printf("\n\n");
     setTextColor(0,2);
         printf("                                                             The Creature under your control : %c                                                                                        ",controlanimal);
@@ -453,6 +468,7 @@ int main(){
         printf("\t\t\t\t\t\t\t\t\tz -- x -- c\n");
         setTextColor(11,0);
     
+    //cls();
     int result;
     sw = 0;
     int j;
@@ -505,6 +521,7 @@ int main(){
                                 i++;
                                 setTextColor(14,0);
                                 printf("Reproduction succesfull and placed in (%d , %d)" , child.x , child.y);
+                                fprintf(log , "Reproduction : (%d,%d) with (%d,%d) in (%d,%d)\n" , list[i].x , list[i].y , list[partner_position].x , list[partner_position].y , child.x , child.y);
                                 setTextColor(11,0);
                             }
                             else if(dx<=1 && dy<=1){
@@ -553,6 +570,7 @@ int main(){
                                 printf("ERROR: please enter another direction or decrease number of your movements:\n");
                                 setTextColor(11,0);
                             }
+                            if(result == 1) fprintf(log , "Move : (%d,%d) in %c direction\n" , list[i].x , list[i].y , direc);
                         }while(result == -1);
                         if(list[i].energy<list[i].movemente){
                             world[list[i].x][list[i].y]='F';
@@ -585,6 +603,7 @@ int main(){
                         }while(j==-1 || list[j].gender!=controlanimal);
                         list[i].energy -= list[i].movemente;
                         list[j].energy += list[i].movemente;
+                        fprintf(log , "Donate %d Energy : (%d,%d) to (%d,%d)\n" , list[i].movemente , list[i].x , list[i].y , list[i].x , list[i].y);
                         if(list[i].energy<list[i].movemente){
                             world[list[i].x][list[i].y]='F';
                             Food_energy[NumberFood]=list[i].energy;
@@ -619,6 +638,7 @@ int main(){
                             if(list[i].attacke > list[j].defense){
                                 setTextColor(14,0);
                                 printf("creature <<%c>> won the fight :)\n ",controlanimal);
+                                fprintf(log , "Fight : (%d,%d) with (%d,%d) , winner : %c\n" , list[i].x , list[i].y , list[j].x , list[j].y , controlanimal);
                                 setTextColor(11,0);
                                 list[i].energy += list[j].energy;
                                 list[j].energy=0;
@@ -627,6 +647,7 @@ int main(){
                             else if(list[i].attacke < list[j].defense){
                                 setTextColor(14,0);
                                 printf("creature <<%c>> won the fight :(\n",list[j].gender);
+                                fprintf(log , "Fight : (%d,%d) with (%d,%d) , winner : %c\n" , list[i].x , list[i].y , list[j].x , list[j].y , list[j].gender);
                                 setTextColor(11,0);
                                 list[j].energy += list[i].energy;
                                 list[i].energy=0;
@@ -654,21 +675,23 @@ int main(){
                     theNearest(list[i].x , list[i].y , 'H');
                     int dx = nearest[0] > list[i].x ? nearest[0] - list[i].x : list[i].x - nearest[0];
                     int dy = nearest[1] > list[i].y ? nearest[1] - list[i].y : list[i].y - nearest[1];
-                    if(dx>list[i].numberm || dy>list[i].numberm)donate_result = donate(&list[i]);
+                    if(dx>list[i].numberm || dy>list[i].numberm)donate_result = donate(&list[i] , log);
                     int attack_result = -1;
                     production_result = 0;
                     if((dx>list[i].numberm || dy>list[i].numberm) &&list[i].energy > 3*list[i].movemente && donate_result == -1){
-                        attack_result =  attack(&list[i]);
+                        attack_result =  attack(&list[i], log);
 
                     }
-                    if((dx>list[i].numberm || dy>list[i].numberm) && list[i].energy > list[i].productione && attack_result == -1 && donate_result == -1) production_result = production(&list[i]);
+                    if((dx>list[i].numberm || dy>list[i].numberm) && list[i].energy > list[i].productione && attack_result == -1 && donate_result == -1) production_result = production(&list[i], log);
                     if (production_result!=1 && attack_result == -1 && donate_result == -1){
                         sleep(1000);
                         printf("Moving creature %c in (%d,%d) to (%d,%d)" , list[i].gender , list[i].x , list[i].y , nearest[0] , nearest[1]);
                         result = moveUnc(&list[i] , &move_dir);
+                        fprintf(log , "Move : (%d,%d) in %c direction\n" , list[i].x , list[i].y , move_dir);
                         int movement_number = 1;
                         while(result == 1 && list[i].energy >= list[i].movemente && movement_number<= list[i].numberm){    
                             result = movethiky(&list[i] , move_dir , 1);
+                            fprintf(log , "Move : (%d,%d) in %c direction\n" , list[i].x , list[i].y , move_dir);
                             movement_number ++;
                         }
                     }
@@ -689,7 +712,10 @@ int main(){
     if(sw == 1) {
         setTextColor(0,14);
         printf("\n                                                                       GG , Wp all. Creture %c won !!                                                                             \n",winner);
-        setTextColor(0,0);
+        setTextColor(2,0);
+        fprintf(log , "GG , Wp all. Creature %c won !!" , winner);
+        fclose(readfile);
+        fclose(log);
         printf("press Any key to exit :");
         getch();
     }

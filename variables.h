@@ -1,5 +1,7 @@
 #ifndef VARIABLES.H
 #define VARIABLES.H
+#include <stdio.h>
+#include <stdlib.h>
 
 
 extern char world[20][20];

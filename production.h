@@ -59,7 +59,7 @@ int Check_Product(char world[][20],struct sanimal animal,int *p,int *x2,int *y2)
 
 
 
-int production(struct sanimal *animal){
+int production(struct sanimal *animal , FILE *log){
     int number_dir = 1;
     int x , y;
     int num;
@@ -83,6 +83,7 @@ int production(struct sanimal *animal){
                     child.y = nearest[1];
                     child.energy = search_for_initialE(animal->gender);
                     generate_chile(&child);
+                    fprintf(log , "Reproduction : (%d,%d) with (%d,%d) in (%d,%d)\n" , animal->x , animal->y , list[serach_for_animal(list , x , y)].x , list[serach_for_animal(list , x , y)].y , child.x , child.y);
                     number_of_all ++;
                     list[number_of_all - 1] = child; 
                     return 1;

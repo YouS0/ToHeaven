@@ -18,12 +18,13 @@ int search_for_donate(struct sanimal list[] , struct sanimal animal){
 
 }
 
-int donate(struct sanimal *animal){
+int donate(struct sanimal *animal, FILE *log){
     int position = search_for_donate(list , *animal);
     if(position != -1){
         animal->energy -= animal->movemente;
         list[position].energy += animal->movemente;
         printf("Donated to (%d,%d)" , list[position].x , list[position].y);
+        fprintf(log , "Donate %d Energy : (%d,%d) to (%d,%d)\n" , animal->movemente , animal->x , animal->y ,list[position].x , list[position].y);
         return 1;
     }
     return -1;

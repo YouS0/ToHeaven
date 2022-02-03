@@ -27,7 +27,7 @@ int Check_for_attack(char world[][20],struct sanimal animal,int *p,int *x2,int *
 
 
 
-int attack(struct sanimal *animal){
+int attack(struct sanimal *animal, FILE *log){
     int number_dir = 1;
     int x , y;
     int num;
@@ -43,6 +43,7 @@ int attack(struct sanimal *animal){
                     list[serach_for_animal(list , x ,y)].energy = 0;
                     world[list[serach_for_animal(list , x ,y)].x][list[serach_for_animal(list , x ,y)].y] = '-';
                     printf("attacked to (%d , %d)" , list[serach_for_animal(list , x ,y)].x , list[serach_for_animal(list , x ,y)].y);
+                    fprintf(log , "Fight : (%d,%d) with (%d,%d) , winner : %c\n" , animal->x ,animal->y , list[serach_for_animal(list , x ,y)].x , list[serach_for_animal(list , x ,y)].y , animal->gender);
                     return 1;
                 }
             }
