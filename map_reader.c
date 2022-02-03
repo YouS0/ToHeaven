@@ -438,10 +438,10 @@ int main(){
     char direc;
     char move_dir;
     FILE *readfile;
-    FILE *log=fopen("game-log.txt" , "wt");
+    FILE *log=fopen("C:\\Team_7_Final_Project\\game-log.txt" , "wt");
     int c[2];
 
-    readfile = fopen("map-phase1.txt" , "rt" );
+    readfile = fopen("C:\\Team_7_Final_Project\\map-phase1.txt" , "rt" );
     if(!readfile || !log) {
         printf("File did not open!");
         exit(-1);
@@ -665,6 +665,14 @@ int main(){
                        i++;
                     }    
                 }
+                if(list[i].energy < list[i].movemente && list[i].energy>0){
+                    Food_energy[NumberFood]=list[i].energy;
+                    Food_Position[NumberFood*2]=list[i].x;
+                    Food_Position[NumberFood*2+1]=list[i].y;
+                    world[list[i].x][list[i].y] = 'F';
+                    NumberFood++;
+                    list[i].energy=0;
+                }                
                 else{
                     i++;
                 }    
@@ -696,7 +704,7 @@ int main(){
                         }
                     }
                 }
-                else{
+                if(list[i].energy < list[i].movemente){
                     Food_energy[NumberFood]=list[i].energy;
                     Food_Position[NumberFood*2]=list[i].x;
                     Food_Position[NumberFood*2+1]=list[i].y;
