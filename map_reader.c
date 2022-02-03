@@ -470,6 +470,7 @@ int main(){
     
     //cls();
     int result;
+    mapprinter(world , size , list[0]);
     sw = 0;
     int j;
     char Activity[10];
@@ -477,7 +478,6 @@ int main(){
     while(sw==0){
         int i = 0;
         while(i<number_of_all && sw == 0){
-            if(list[i].energy>0)mapprinter(world , 20 , list[i]);
 
             if(list[i].gender == controlanimal){
                 if(list[i].energy>0){
@@ -683,6 +683,9 @@ int main(){
                        i++;
                     }    
                 }
+                else{
+                    i++;
+                }
                 if(list[i].energy < list[i].movemente && list[i].energy>0){
                     Food_energy[NumberFood]=list[i].energy;
                     Food_Position[NumberFood*2]=list[i].x;
@@ -690,10 +693,7 @@ int main(){
                     world[list[i].x][list[i].y] = 'F';
                     NumberFood++;
                     list[i].energy=0;
-                }                
-                else{
-                    i++;
-                }    
+                }                    
             }
             else{
                 if(list[i].energy>0){
@@ -732,6 +732,7 @@ int main(){
                 }
                 i++;
             }
+            if(list[i].energy>0)mapprinter(world , size , list[i]);
     
         }
     }
