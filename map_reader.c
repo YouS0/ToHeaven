@@ -86,6 +86,7 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
         
         if( sw != 1){
             swap(world,x,y,x,y-number_of_direction);
+            animal->energy-= animal->movemente*number_of_direction;
             animal->y-=number_of_direction;
         }
     }
@@ -106,6 +107,7 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
         }
         if( sw != 1){
             swap(world,x,y,x-number_of_direction,y);
+            animal->energy-= animal->movemente*number_of_direction;
             animal->x-=number_of_direction;
         }
     }
@@ -126,6 +128,7 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
         }
         if( sw != 1){
             swap(world,x,y,x,y+number_of_direction);
+            animal->energy-= animal->movemente*number_of_direction;
             animal->y+=number_of_direction;
         }
     }
@@ -147,6 +150,7 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
         }
         if( sw != 1){
             swap(world,x,y,x+number_of_direction,y);
+            animal->energy-= animal->movemente*number_of_direction;
             animal->x+=number_of_direction;
         }
     }
@@ -167,6 +171,7 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
         }
         if( sw != 1){
             swap(world,x,y,x+number_of_direction,y-number_of_direction);
+            animal->energy-= animal->movemente*number_of_direction;
             animal->x+=number_of_direction;
             animal->y-=number_of_direction;
         }
@@ -188,6 +193,7 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
         }
         if( sw != 1){
             swap(world,x,y,x+number_of_direction,y+number_of_direction);
+            animal->energy-= animal->movemente*number_of_direction;
             animal->x+=number_of_direction;
             animal->y+=number_of_direction;
         }
@@ -209,6 +215,7 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
         }
         if( sw != 1){
             swap(world,x,y,x-number_of_direction,y-number_of_direction);
+            animal->energy-= animal->movemente*number_of_direction;
             animal->x-=number_of_direction;
             animal->y-=number_of_direction;
         }
@@ -230,6 +237,7 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
         }
         if( sw != 1){
             swap(world,x,y,x-number_of_direction,y+number_of_direction);
+            animal->energy-= animal->movemente*number_of_direction;
             animal->x-=number_of_direction;
             animal->y+=number_of_direction;
         }
@@ -438,10 +446,10 @@ int main(){
     char direc;
     char move_dir;
     FILE *readfile;
-    FILE *log=fopen("C:\\Team_7_Final_Project\\game-log.txt" , "wt");
+    FILE *log=fopen("C:\\Users\\MOHAMMAD\\Desktop\\Team_7_Final_Project\\game-log.txt" , "wt");
     int c[2];
 
-    readfile = fopen("C:\\Team_7_Final_Project\\map-phase1.txt" , "rt" );
+    readfile = fopen("C:\\Users\\MOHAMMAD\\Desktop\\Team_7_Final_Project\\map-phase1.txt" , "rt" );
     if(!readfile || !log) {
         printf("File did not open!");
         exit(-1);
@@ -470,7 +478,6 @@ int main(){
     
     //cls();
     int result;
-    mapprinter(world , size , list[0]);
     sw = 0;
     int j;
     char Activity[10];
@@ -478,7 +485,7 @@ int main(){
     while(sw==0){
         int i = 0;
         while(i<number_of_all && sw == 0){
-
+            mapprinter(world,size,list[i]);
             if(list[i].gender == controlanimal){
                 if(list[i].energy>0){
                     int productx , producty;
@@ -535,7 +542,7 @@ int main(){
                             printf("ERROR : This creature has not enough energy for reproduct! Please Select another activity\n");
                             setTextColor(11,0);
                         }
-                        if(list[i].energy<list[i].movemente){
+                        if(list[i].energy<list[i].movemente && list[i].energy>0){
                             world[list[i].x][list[i].y]='F';
                             Food_energy[NumberFood]=list[i].energy;
                             Food_Position[NumberFood*2]=list[i].x;
@@ -543,6 +550,9 @@ int main(){
                             world[list[i].x][list[i].y] = 'F';
                             NumberFood++;
                             list[i].energy=0;
+                        }
+                        else if(list[i].energy<=0){
+                            world[list[i].x][list[i].y]='-';
                         }
                     }
                     if(strcmp(Activity,"move")==0){
@@ -572,7 +582,7 @@ int main(){
                             }
                             if(result == 1) fprintf(log , "Move : (%d,%d) in %c direction\n" , list[i].x , list[i].y , direc);
                         }while(result == -1);
-                        if(list[i].energy<list[i].movemente){
+                        if(list[i].energy<list[i].movemente && list[i].energy>0){
                             world[list[i].x][list[i].y]='F';
                             Food_energy[NumberFood]=list[i].energy;
                             Food_Position[NumberFood*2]=list[i].x;
@@ -580,6 +590,9 @@ int main(){
                             world[list[i].x][list[i].y] = 'F';
                             NumberFood++;
                             list[i].energy=0;
+                        }
+                        else if(list[i].energy<=0){
+                            world[list[i].x][list[i].y]='-';
                         }
                         i++;
                     }
@@ -615,7 +628,7 @@ int main(){
                             list[i].energy -= list[i].movemente;
                             list[j].energy += list[i].movemente;
                             fprintf(log , "Donate %d Energy : (%d,%d) to (%d,%d)\n" , list[i].movemente , list[i].x , list[i].y , list[i].x , list[i].y);
-                            if(list[i].energy<list[i].movemente){
+                            if(list[i].energy<list[i].movemente && list[i].energy>0){
                                 world[list[i].x][list[i].y]='F';
                                 Food_energy[NumberFood]=list[i].energy;
                                 Food_Position[NumberFood*2]=list[i].x;
@@ -623,6 +636,9 @@ int main(){
                                 world[list[i].x][list[i].y] = 'F';
                                 NumberFood++;
                                 list[i].energy=0;
+                            }
+                            else if(list[i].energy<=0){
+                                world[list[i].x][list[i].y]='-';
                             }
                             i++;
                         }
@@ -679,6 +695,9 @@ int main(){
                                 NumberFood++;
                                 list[i].energy=0;
                             }
+                            else if(list[i].energy<=0){
+                                world[list[i].x][list[i].y]='-';
+                            }
                         }
                        i++;
                     }    
@@ -686,14 +705,7 @@ int main(){
                 else{
                     i++;
                 }
-                if(list[i].energy < list[i].movemente && list[i].energy>0){
-                    Food_energy[NumberFood]=list[i].energy;
-                    Food_Position[NumberFood*2]=list[i].x;
-                    Food_Position[NumberFood*2+1]=list[i].y;
-                    world[list[i].x][list[i].y] = 'F';
-                    NumberFood++;
-                    list[i].energy=0;
-                }                    
+                                 
             }
             else{
                 if(list[i].energy>0){
@@ -732,7 +744,7 @@ int main(){
                 }
                 i++;
             }
-            if(list[i].energy>0)mapprinter(world , size , list[i]);
+            //if(list[i].energy>0)mapprinter(world , size , list[i]);
     
         }
     }
