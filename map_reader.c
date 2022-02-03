@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <time.h>
-#include <windows.h>
 #include "main-struct.h"
 #include "map-funcs.h"
 #include "production.h"
@@ -33,14 +32,18 @@ void clearScreen() {
 
 
 void mapprinter(char world[][20],int size ,struct sanimal animal){
-    printf("\n");
     int x = animal.x;
     int y = animal.y;
+    printf("\n");
+    for(int i = 0 ; i<NumberFood ; i++){
+        if(Food_energy[i] != 0) printf("Food In position (%d,%d) has %d\n" , Food_Position[2*i] , Food_Position[2*i+1] , Food_energy[i]);
+    }
+    printf("\n");
     for(int i=0;i<size;i++){
         printf("|");
         for(int j=0;j<size;j++){
             if(x==i && y==j && animal.energy>0){
-                setTextColor(4,0);
+                setTextColor(14,0);
             }
             printf("%c",world[i][j]);
             setTextColor(11,0);
@@ -70,8 +73,8 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
         }
         for(int i = 1 ; i<= number_of_direction ; i++){
             if(world[x][y-i]=='F') {
-                animal->energy += Food_energy[SearchFood(x,y-i)];
-                Food_energy[SearchFood(x,y-i)] = 0;
+                animal->energy += Food_energy[SearchFood(x,y-i)/2];
+                Food_energy[SearchFood(x,y-i)/2] = 0;
                 world[x][y-i] = '-';
             }
         }
@@ -91,8 +94,8 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
         }
         for(int i = 1 ; i<= number_of_direction ; i++){
             if(world[x-i][y]=='F') {
-                animal->energy += Food_energy[SearchFood(x-i,y)];
-                Food_energy[SearchFood(x-i,y)] = 0;
+                animal->energy += Food_energy[SearchFood(x-i,y)/2];
+                Food_energy[SearchFood(x-i,y)/2] = 0;
                 world[x-i][y] = '-';
             }
         }
@@ -111,8 +114,8 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
         }
         for(int i = 1 ; i<= number_of_direction ; i++){
             if(world[x][y+i]=='F') {
-                animal->energy += Food_energy[SearchFood(x,y+i)];
-                Food_energy[SearchFood(x,y+i)] = 0;
+                animal->energy += Food_energy[SearchFood(x,y+i)/2];
+                Food_energy[SearchFood(x,y+i)/2] = 0;
                 world[x][y+i] = '-';
             }
         }
@@ -132,8 +135,8 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
         }
         for(int i = 1 ; i<= number_of_direction ; i++){
             if(world[x+i][y]=='F') {
-                animal->energy += Food_energy[SearchFood(x+i,y)];
-                Food_energy[SearchFood(x+i,y)] = 0;
+                animal->energy += Food_energy[SearchFood(x+i,y)/2];
+                Food_energy[SearchFood(x+i,y)/2] = 0;
                 world[x+i][y] = '-';
             }
         }
@@ -152,8 +155,8 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
         }
         for(int i = 1 ; i<= number_of_direction ; i++){
             if(world[x+i][y-i]=='F') {
-                animal->energy += Food_energy[SearchFood(x+i,y-i)];
-                Food_energy[SearchFood(x+i,y-i)] = 0;
+                animal->energy += Food_energy[SearchFood(x+i,y-i)/2];
+                Food_energy[SearchFood(x+i,y-i)/2] = 0;
                 world[x+i][y-i] = '-';
             }
         }
@@ -173,8 +176,8 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
         }
         for(int i = 1 ; i<= number_of_direction ; i++){
             if(world[x+i][y+i]=='F') {
-                animal->energy += Food_energy[SearchFood(x+i,y+i)];
-                Food_energy[SearchFood(x+i,y+i)] = 0;
+                animal->energy += Food_energy[SearchFood(x+i,y+i)/2];
+                Food_energy[SearchFood(x+i,y+i)/2] = 0;
                 world[x+i][y+i] = '-';
             }
         }
@@ -194,8 +197,8 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
         }
         for(int i = 1 ; i<= number_of_direction ; i++){
             if(world[x-i][y-i]=='F') {
-                animal->energy += Food_energy[SearchFood(x-i,y-i)];
-                Food_energy[SearchFood(x-i,y-i)] = 0;
+                animal->energy += Food_energy[SearchFood(x-i,y-i)/2];
+                Food_energy[SearchFood(x-i,y-i)/2] = 0;
                 world[x-i][y-i] = '-';
             }
         }
@@ -215,8 +218,8 @@ int movethiky(struct sanimal *animal,char direction , int number_of_direction){
         }
         for(int i = 1 ; i<= number_of_direction ; i++){
             if(world[x-i][y+i]=='F') {
-                animal->energy += Food_energy[SearchFood(x-i,y+i)];
-                Food_energy[SearchFood(x-i,y+i)] = 0;
+                animal->energy += Food_energy[SearchFood(x-i,y+i)/2];
+                Food_energy[SearchFood(x-i,y+i)/2] = 0;
                 world[x-i][y+i] = '-';
             }
         }
@@ -434,21 +437,22 @@ int main(){
     FILE *readfile;
     int c[2];
 
-    readfile = fopen("C:\\Team_7_Final_Project\\map-phase1.txt" , "rt" );
+    readfile = fopen("C:\\Users\\MOHAMMAD\\Desktop\\Team_7_Final_Project\\map-phase1.txt" , "rt" );
     //if(!readfile || !log) printf("File did not open!");
     setTextColor(11 , 0);
     mapreader(readfile);
-    printf("\n");
-    printf("The Creature under your control : %c\n",controlanimal);
-    printf("MOVE with:\n");
-    printf("          q -- w -- e\n");
-    printf("          |    |    |\n");
-    printf("          a -- @ -- d\n");
-    printf("          |    |    |\n");
-    printf("          z -- x -- c\n");
-    for(int i = 0 ; i<NumberFood ; i++){
-        if(Food_energy[i] != 0) printf("Food In position (%d,%d) has %d\n" , Food_Position[2*i] , Food_Position[2*i+1] , Food_energy[i]);
-    }
+    printf("\n\n");
+    setTextColor(0,2);
+        printf("                                                             The Creature under your control : %c                                                                                        ",controlanimal);
+        setTextColor(15,0);
+        printf("\n\t\t\t\t\t\t\t\t\t MOVE with:\n");
+        printf("\t\t\t\t\t\t\t\t\tq -- w -- e\n");
+        printf("\t\t\t\t\t\t\t\t\t|    |    |\n");
+        printf("\t\t\t\t\t\t\t\t\ta -- @ -- d\n");
+        printf("\t\t\t\t\t\t\t\t\t|    |    |\n");
+        printf("\t\t\t\t\t\t\t\t\tz -- x -- c\n");
+        setTextColor(11,0);
+    
     int result;
     sw = 0;
     int j;
@@ -467,7 +471,9 @@ int main(){
                         printf("which activity do you want?!(move\\donat\\fight\\reproduct)\n");
                         scanf("%s",Activity);
                         if(strcmp(Activity,"donate")!=0 && strcmp(Activity,"move")!=0 && strcmp(Activity,"fight")!=0 && strcmp(Activity , "reproduct")!=0){
-                            printf("please answer with (move\\fight\\donate\n");
+                            setTextColor(4,0);
+                            printf("ERROR:please answer with (move\\donat\\fight\\reproduct)\n");
+                            setTextColor(11,0);
                         }
                     }while(strcmp(Activity,"donate")!=0 && strcmp(Activity,"move")!=0 && strcmp(Activity,"fight")!=0 && strcmp(Activity , "reproduct")!=0);
 
@@ -478,7 +484,9 @@ int main(){
                             int dx = productx > list[i].x ? productx - list[i].x : list[i].x - productx;
                             int dy = producty > list[i].y ? productx - list[i].y : list[i].y - producty;
                             if(dx>1 || dy>1){
-                                printf("Too Far to reproduct !\n");
+                                setTextColor(4,0);
+                                printf("ERROR:Too Far to reproduct !\n");
+                                setTextColor(11,0);
                             }
                             int partner_position = serach_for_animal(list , productx , producty);
                             if(list[partner_position].energy >= list[partner_position].productione && dx<=1 && dy<=1){
@@ -495,15 +503,20 @@ int main(){
                                 number_of_all ++;
                                 list[number_of_all - 1] = child;
                                 i++;
+                                setTextColor(14,0);
                                 printf("Reproduction succesfull and placed in (%d , %d)" , child.x , child.y);
-                                
+                                setTextColor(11,0);
                             }
                             else if(dx<=1 && dy<=1){
+                                setTextColor(4,0);
                                 printf("ERROR : Selected partner has not enough energy !\n");
+                                setTextColor(11,0);
                             }
                         }
                         else{
+                            setTextColor(4,0);
                             printf("ERROR : This creature has not enough energy for reproduct! Please Select another activity\n");
+                            setTextColor(11,0);
                         }
                         if(list[i].energy<list[i].movemente){
                             world[list[i].x][list[i].y]='F';
@@ -515,27 +528,30 @@ int main(){
                             list[i].energy=0;
                         }
                     }
-
-
-
-
-
-
-
                     if(strcmp(Activity,"move")==0){
                         int number_movements;
                         do{
                             printf("please eneter your dierction: ");
                             scanf(" %c",&direc);
+                            while(direc!='q' && direc!='w'  && direc!='e' && direc!='d' && direc!='x' && direc!='c' && direc!='z' && direc!='a'){
+                                setTextColor(4,0);
+                                printf("ERROR:this direction isn't available!!\nplease enter another direction:\n");
+                                scanf(" %c",&direc);
+                                setTextColor(11,0);
+                            }
                             printf("please enter number of direction: ");
                             scanf("%d",&number_movements);
                             while(number_movements>list[i].numberm || list[i].energy<number_movements*list[i].movemente){
-                                printf("please decrease number of your movements: ");
+                                setTextColor(4,0);
+                                printf("ERROR:please decrease number of your movements: ");
                                 scanf("%d",&number_movements);
+                                setTextColor(11,0);
                             }
                             result = movethiky(&list[i] , direc , number_movements);
                             if(result==-1){
-                                printf("ERROR: please enter another direction ");
+                                setTextColor(4,0);
+                                printf("ERROR: please enter another direction or decrease number of your movements:\n");
+                                setTextColor(11,0);
                             }
                         }while(result == -1);
                         if(list[i].energy<list[i].movemente){
@@ -557,10 +573,14 @@ int main(){
                             scanf("%d %d",&x,&y);
                             j = serach_for_animal(list,x,y);
                             if(list[j].gender!=controlanimal){
-                                printf("you can't donate to this creature!!\n");
+                                setTextColor(4,0);
+                                printf("ERROR:you can't donate to this creature!!\n");
+                                setTextColor(11,0);
                             }
                             if(j==-1){
-                                printf("this animal isn't available!!!\n");
+                                setTextColor(4,0);
+                                printf("ERROR:this animal isn't available!!!\n");
+                                setTextColor(11,0);
                             }
                         }while(j==-1 || list[j].gender!=controlanimal);
                         list[i].energy -= list[i].movemente;
@@ -586,10 +606,14 @@ int main(){
                                 scanf("%d %d",&x,&y);
                                 j=serach_for_animal(list,x,y);
                                 if(list[j].gender==controlanimal){
-                                    printf("you can't attack to this creature!!!\n please enter another position:\n");
+                                    setTextColor(4,0);
+                                    printf("ERROR:you can't attack to this creature!!!\n please enter another position:\n");
+                                    setTextColor(11,0);
                                 }
                                 if(j==-1){
+                                    setTextColor(4,0);
                                     printf("this animal isn't available!!!\n please enter another position:\n");
+                                    setTextColor(11,0);
                                 } 
                             }while(j==-1 || list[j].gender==controlanimal);
                             if(list[i].attacke > list[j].defense){
@@ -663,7 +687,10 @@ int main(){
         }
     }
     if(sw == 1) {
-        printf("\nGG , Wp all. Creture %c won !!\nPress Any key to exit : " , winner);
+        setTextColor(0,14);
+        printf("\n                                                                       GG , Wp all. Creture %c won !!                                                                             \n",winner);
+        setTextColor(0,0);
+        printf("press Any key to exit :");
         getch();
     }
 
