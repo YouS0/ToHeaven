@@ -50,6 +50,15 @@ void mapprinter(char world[][20],int size ,struct sanimal animal){
             if(x==i && y==j && animal.energy>0){
                 setTextColor(14,0);
             }
+            if(world[i][j]=='#'){
+                setTextColor(8,0);
+            }
+            else if(world[i][j]=='F'){
+                setTextColor(10,0);
+            }
+            else if(world[i][j] == 'H'){
+                setTextColor(15,0);
+            }
             printf("%c",world[i][j]);
             setTextColor(11,0);
             printf("|");
@@ -60,10 +69,9 @@ void mapprinter(char world[][20],int size ,struct sanimal animal){
 }
 
 void swap(char world[][20],int a,int b,int i,int j){
-    char temp;
-    temp=world[a][b];
+    temp_location=world[a][b];
     world[a][b]=world[i][j];
-    world[i][j]=temp;
+    world[i][j]=temp_location;
 }
 
 int movethiky(struct sanimal *animal,char direction , int number_of_direction){
@@ -297,7 +305,7 @@ int moveUnc(struct sanimal *animal , char *move_dir) {
     theNearest(animal->x , animal->y , 'H');
     if(nearest[0]>animal->x){
         if(nearest[1]>animal->y) result = move_all_directions(animal , 'c' , 'd' , 'x' , 'z' , 'e' , 'a' , 'w' , 'q',move_dir);
-        else if(nearest[1]<animal->y) result = move_all_directions(animal , 'z' , 'a' , 'x' , 'c' , 'q' , 'w' , 'd' , 'e',move_dir);
+        else if(nearest[1]<animal->y) result = move_all_directions(animal , 'z' , 'a' , 'x' , 'c' , 'q' , 'd' , 'w' , 'e',move_dir);
         else if(nearest[1] == animal->y) result = move_all_directions(animal , 'x' , 'c' , 'z' , 'a' , 'd' , 'w' , 'e' , 'q',move_dir);
     }
     else if(nearest[0]<animal->x){
@@ -449,7 +457,7 @@ int main(){
     FILE *log=fopen("game-log.txt" , "wt");
     int c[2];
 
-    readfile = fopen("map-phase1.txt" , "rt" );
+    readfile = fopen("final_map.txt" , "rt" );
     if(!readfile || !log) {
         printf("File did not open!");
         getch();
@@ -485,7 +493,10 @@ int main(){
     int production_result;
     while(sw==0){
         int i = 0;
-        while(i<number_of_all && sw == 0){
+        while(i<number_of_all && sw == 0 && list[i].energy>list[i].movemente){
+            for(int i = 0 ; i< number_of_all ; i++){
+                if(list[i].energy < list[i].movemente) world[list[i].x][list[i].y] = 'F';
+            }
             mapprinter(world,size,list[i]);
             if(list[i].gender == controlanimal){
                 if(list[i].energy>0){
@@ -514,8 +525,8 @@ int main(){
                             }
                             int partner_position = serach_for_animal(list , productx , producty);
                             if(list[partner_position].energy >= list[partner_position].productione && dx<=1 && dy<=1){
-                                list[i].energy -= list[i].productione;
-                                list[partner_position].energy -= list[partner_position].productione;
+                                list[i].energy -= list[i].productione/2;
+                                list[partner_position].energy -= list[partner_position].productione/2;
                                 struct sanimal child;
                                 child.gender = list[i].gender;
                                 theNearest(list[i].x , list[i].y , '-');
@@ -728,11 +739,13 @@ int main(){
                         result = moveUnc(&list[i] , &move_dir);
                         fprintf(log , "Move : (%d,%d) in %c direction\n" , list[i].x , list[i].y , move_dir);
                         int movement_number = 1;
+                     
                         while(result == 1 && list[i].energy >= list[i].movemente && movement_number<= list[i].numberm){    
                             result = movethiky(&list[i] , move_dir , 1);
                             fprintf(log , "Move : (%d,%d) in %c direction\n" , list[i].x , list[i].y , move_dir);
                             movement_number ++;
                         }
+                                           
                     }
                 }
                 if(list[i].energy < list[i].movemente){
@@ -748,6 +761,7 @@ int main(){
             //if(list[i].energy>0)mapprinter(world , size , list[i]);
     
         }
+
     }
     if(sw == 1) {
         setTextColor(0,14);

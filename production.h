@@ -74,7 +74,7 @@ int production(struct sanimal *animal , FILE *log){
                     printf("reproduction . . . ");
                     sleep(1000);
                     animal->energy -= animal->productione/2;
-                    list[serach_for_animal(list , x , y)].energy -= list[serach_for_animal(list , x , y)].productione;
+                    list[serach_for_animal(list , x , y)].energy -= list[serach_for_animal(list , x , y)].productione/2;
                     struct sanimal child;
                     child.gender = animal->gender;
                     theNearest(animal->x , animal->y , '-');
