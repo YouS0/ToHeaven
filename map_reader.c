@@ -740,7 +740,7 @@ int main(){
                         fprintf(log , "Move : (%d,%d) in %c direction\n" , list[i].x , list[i].y , move_dir);
                         int movement_number = 1;
                      
-                        while(result == 1 && list[i].energy >= list[i].movemente && movement_number<= list[i].numberm){    
+                        while(result == 1 && list[i].energy >= list[i].movemente && movement_number < list[i].numberm){    
                             result = movethiky(&list[i] , move_dir , 1);
                             fprintf(log , "Move : (%d,%d) in %c direction\n" , list[i].x , list[i].y , move_dir);
                             movement_number ++;
